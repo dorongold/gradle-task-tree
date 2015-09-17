@@ -1,0 +1,16 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+repositories {
+    jcenter()
+}
+
+group = 'com.dorongold.plugins'
+version = '0.1.0-SNAPSHOT'
+description = 'Gradle plugin that adds a 'taskTree' task that prints task dependency tree'
+
+dependencies {
+    localGroovy()
+    compile gradleApi()
+    compile 'commons-lang:commons-lang:2.6'
+}
