@@ -7,7 +7,7 @@ repositories {
 
 group = 'com.dorongold.plugins'
 version = '0.1.0-SNAPSHOT'
-description = 'Gradle plugin that adds a 'taskTree' task that prints task dependency tree'
+description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
 dependencies {
     localGroovy()
