@@ -45,11 +45,68 @@ When one of the tasks given to the gradle command is `taskTree`, execution of al
 
 ### Examples
 
-`gradle build taskTree`
+`gradle build taskTree`  
+gives me the following output:  
+```
+:build
++--- :assemble
+|    \--- :jar
+|         \--- :classes
+|              +--- :compileJava
+|              \--- :processResources
+\--- :check
+     \--- :test
+          +--- :classes
+          |    +--- :compileJava
+          |    \--- :processResources
+          \--- :testClasses
+               +--- :compileTestJava
+               |    \--- :classes
+               |         +--- :compileJava
+               |         \--- :processResources
+               \--- :processTestResources
 
-`gradle complieJava taskTree`
+```
 
-`gradle taskTree javadoc test check`
+`gradle compileJava taskTree`  
+gives me the following output:   
+```
+:compileJava
+No task dependencies
+```
+
+`gradle taskTree javadoc test check`  
+gives me the following output:   
+```
+:javadoc
+\--- :classes
+     +--- :compileJava
+     \--- :processResources
+
+:test
++--- :classes
+|    +--- :compileJava
+|    \--- :processResources
+\--- :testClasses
+     +--- :compileTestJava
+     |    \--- :classes
+     |         +--- :compileJava
+     |         \--- :processResources
+     \--- :processTestResources
+
+:check
+\--- :test
+     +--- :classes
+     |    +--- :compileJava
+     |    \--- :processResources
+     \--- :testClasses
+          +--- :compileTestJava
+          |    \--- :classes
+          |         +--- :compileJava
+          |         \--- :processResources
+          \--- :processTestResources
+
+```
 
 
 # Acknowledgements
