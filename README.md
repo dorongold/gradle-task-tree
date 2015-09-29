@@ -46,7 +46,6 @@ When one of the tasks given to the gradle command is `taskTree`, execution of al
 ### Examples
 
 `gradle build taskTree`  
-gives me the following output:  
 ```
 :build
 +--- :assemble
@@ -69,14 +68,12 @@ gives me the following output:
 ```
 
 `gradle compileJava taskTree`  
-gives me the following output:   
 ```
 :compileJava
 No task dependencies
 ```
 
 `gradle taskTree javadoc test check`  
-gives me the following output:   
 ```
 :javadoc
 \--- :classes
