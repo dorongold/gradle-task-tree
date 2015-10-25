@@ -10,30 +10,11 @@ The plugin can be configured in an [initialization script](http://gradle.org/doc
 
 It is also deployed on [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dorongold.task-tree).
 
-## Build Script Snippets
-
-### Gradle 1.x and 2.0
-
-```groovy
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.0.0"
-  }
-}
-
-apply plugin: "com.dorongold.task-tree"
-```
-
-### Gradle 2.1 and higher
+## Build Script Snippet
 
 ```groovy
 plugins {
-  id "com.dorongold.task-tree" version "1.0.0"
+    id "com.dorongold.task-tree" version "1.0.1"
 }
 ```
 
@@ -105,6 +86,9 @@ No task dependencies
 
 ```
 
+# Version Compatibility
+Gradle 2.3+
+Java 1.7+
 
 # Acknowledgements
 
