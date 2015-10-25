@@ -87,7 +87,7 @@ No task dependencies
 ```
 
 # Version Compatibility
-Gradle 2.3+
+Gradle 2.3+  
 Java 1.7+
 
 # Acknowledgements
