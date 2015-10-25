@@ -2,6 +2,8 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: "com.gradle.plugin-publish"
 
+sourceCompatibility = 1.7
+
 buildscript {
     repositories {
         maven {
@@ -18,13 +20,13 @@ repositories {
 }
 
 group = 'com.dorongold.plugins'
-version = '1.0.0'
+version = '1.0.1'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
 dependencies {
     compile localGroovy()
     compile gradleApi()
-    compile 'commons-lang:commons-lang:2.6'
+    compile 'org.apache.commons:commons-lang3:3.4'
 }
 
 pluginBundle {
