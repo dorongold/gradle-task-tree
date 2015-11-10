@@ -47,7 +47,7 @@ class TaskTreeTask extends AbstractReportTask {
         Set<TaskInfo> tasksOfCurrentProject = entryTasks.findAll { it.getTask().getProject() == project }
 
         tasksOfCurrentProject.findAll { !(it.task.class in TaskTreeTask) }.each {
-            render(it, new GraphRenderer(textOutput), true, textOutput, true)
+            render(it, new GraphRenderer(textOutput), true, textOutput, true, new HashSet<Object>())
             if (it.dependencySuccessors.isEmpty()) {
                 textOutput.withStyle(Info).text("No task dependencies");
                 textOutput.println();
@@ -93,21 +93,24 @@ class TaskTreeTask extends AbstractReportTask {
     }
 
     void render(final TaskInfo entryTask, GraphRenderer renderer, boolean lastChild,
-                final StyledTextOutput textOutput, boolean isFirst) {
+                final StyledTextOutput textOutput, boolean isFirst, Set<Object> rendered) {
+        final boolean descend = rendered.add(entryTask)
         renderer.visit(new Action<StyledTextOutput>() {
             public void execute(StyledTextOutput styledTextOutput) {
-                styledTextOutput.withStyle(isFirst ? Identifier : Normal).text(entryTask.task.path);
+                styledTextOutput.withStyle(isFirst ? Identifier : Normal).text(entryTask.task.path + (descend ? "" : " *"));
 //                if (GUtil.isTrue(project.getDescription())) {
 //                    textOutput.withStyle(Description).format(" - %s", project.getDescription());
 //                }
             }
         }, lastChild);
-        renderer.startChildren();
-        Set<TaskInfo> children = entryTask.dependencySuccessors
-        children.eachWithIndex { TaskInfo child, int i ->
-            this.render(child, renderer, i == children.size() - 1, textOutput, false);
+        if (descend) {
+            renderer.startChildren();
+            Set<TaskInfo> children = entryTask.dependencySuccessors
+            children.eachWithIndex { TaskInfo child, int i ->
+                this.render(child, renderer, i == children.size() - 1, textOutput, false, rendered);
+            }
+            renderer.completeChildren();
         }
-        renderer.completeChildren();
     }
 
     private List<Project> getChildren(Project project) {
