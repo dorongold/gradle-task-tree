@@ -14,7 +14,7 @@ It is also deployed on [Gradle Plugin Portal](https://plugins.gradle.org/plugin/
 
 ```groovy
 plugins {
-    id "com.dorongold.task-tree" version "1.0.1"
+    id "com.dorongold.task-tree" version "1.1.0"
 }
 ```
 
