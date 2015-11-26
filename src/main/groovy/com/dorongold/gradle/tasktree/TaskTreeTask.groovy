@@ -64,7 +64,7 @@ class TaskTreeTask extends AbstractReportTask {
 
         textOutput.println();
         textOutput.text("To see task dependency tree for a specific task, run ");
-        metaData.describeCommand(textOutput.withStyle(UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--noRepeat]"));
+        metaData.describeCommand(textOutput.withStyle(UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--no-repeat]"));
         textOutput.println();
 
         textOutput.text("Executions of all tasks except for ")
@@ -73,7 +73,7 @@ class TaskTreeTask extends AbstractReportTask {
         textOutput.println();
         textOutput.println();
         textOutput.text("Add ")
-        textOutput.withStyle(UserInput).text('--noRepeat')
+        textOutput.withStyle(UserInput).text('--no-repeat')
         textOutput.text(" to prevent printing a subtree of the same task more than once.")
 
 
@@ -85,7 +85,7 @@ class TaskTreeTask extends AbstractReportTask {
         textOutput.println();
     }
 
-    @Option(option = "noRepeat", description = "prevent printing same subtree more than once")
+    @Option(option = "no-repeat", description = "prevent printing same subtree more than once")
     public void setNoRepeat(boolean noRepeat) {
         this.noRepeat = noRepeat
     }
