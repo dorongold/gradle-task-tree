@@ -3,6 +3,7 @@ package com.dorongold.gradle.tasktree
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.internal.tasks.options.Option
 import org.gradle.api.tasks.diagnostics.AbstractReportTask
 import org.gradle.api.tasks.diagnostics.internal.ReportRenderer
 import org.gradle.api.tasks.diagnostics.internal.TextReportRenderer
@@ -24,7 +25,7 @@ import static org.gradle.logging.StyledTextOutput.Style.*
  */
 class TaskTreeTask extends AbstractReportTask {
     private TextReportRenderer renderer = new TextReportRenderer();
-
+    private boolean noRepeat = false;
 
     @Override
     protected ReportRenderer getRenderer() {
@@ -55,22 +56,42 @@ class TaskTreeTask extends AbstractReportTask {
             textOutput.println()
         }
 
+        if (noRepeat) {
+            textOutput.println();
+            textOutput.text("(*) - subtree omitted (printed previously)");
+            textOutput.println();
+        }
+
         textOutput.println();
         textOutput.text("To see task dependency tree for a specific task, run ");
-        metaData.describeCommand(textOutput.withStyle(UserInput), String.format("<project-path>:<task> <project-path>:taskTree"));
+        metaData.describeCommand(textOutput.withStyle(UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--noRepeat]"));
         textOutput.println();
 
         textOutput.text("Executions of all tasks except for ")
         textOutput.withStyle(UserInput).text('taskTree')
         textOutput.text(" will be skipped. They will be used for building the task graph only.")
         textOutput.println();
+        textOutput.println();
+        textOutput.text("Add ")
+        textOutput.withStyle(UserInput).text('--noRepeat')
+        textOutput.text(" to prevent printing a subtree of the same task more than once.")
 
+
+        textOutput.println();
         textOutput.println();
         textOutput.text("For example, try running ");
         Project exampleProject = project.getChildProjects().isEmpty() ? project : getChildren(project).get(0);
         metaData.describeCommand(textOutput.withStyle(UserInput), exampleProject.absoluteProjectPath('build'), exampleProject.absoluteProjectPath('taskTree'));
         textOutput.println();
+    }
 
+    @Option(option = "noRepeat", description = "prevent printing same subtree more than once")
+    public void setNoRepeat(boolean noRepeat) {
+        this.noRepeat = noRepeat
+    }
+
+    public boolean isNoRepeat() {
+        return noRepeat
     }
 
     private TaskExecutionPlan getTEP(TaskExecutionGraph teg) {
@@ -94,16 +115,16 @@ class TaskTreeTask extends AbstractReportTask {
 
     void render(final TaskInfo entryTask, GraphRenderer renderer, boolean lastChild,
                 final StyledTextOutput textOutput, boolean isFirst, Set<Object> rendered) {
-        final boolean descend = rendered.add(entryTask)
+        final boolean taskSubtreeAlreadyPrinted = rendered.add(entryTask)
         renderer.visit(new Action<StyledTextOutput>() {
             public void execute(StyledTextOutput styledTextOutput) {
-                styledTextOutput.withStyle(isFirst ? Identifier : Normal).text(entryTask.task.path + (descend ? "" : " *"));
+                styledTextOutput.withStyle(isFirst ? Identifier : Normal).text(entryTask.task.path + ((!noRepeat || taskSubtreeAlreadyPrinted) ? "" : " *"));
 //                if (GUtil.isTrue(project.getDescription())) {
 //                    textOutput.withStyle(Description).format(" - %s", project.getDescription());
 //                }
             }
         }, lastChild);
-        if (descend) {
+        if (!noRepeat || taskSubtreeAlreadyPrinted) {
             renderer.startChildren();
             Set<TaskInfo> children = entryTask.dependencySuccessors
             children.eachWithIndex { TaskInfo child, int i ->
