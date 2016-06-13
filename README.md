@@ -8,7 +8,7 @@ The task dependency tree is printed with a similar format to that of the built-i
 
 The plugin can be configured in the [build script](https://gradle.org/docs/current/userguide/plugins.html) or in an [init script](http://gradle.org/docs/current/userguide/init_scripts.html).
 
-It is also deployed on [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dorongold.task-tree).
+The plugin is published on [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dorongold.task-tree).
 
 ## Build Script Snippet
 
