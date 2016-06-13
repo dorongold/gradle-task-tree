@@ -18,6 +18,24 @@ plugins {
 }
 ```
 
+## Init Script Snippet
+
+To use this plugin in all your projects, put the following in a file named `init.gradle` in the `$USER_HOME/.gradle/` directory, or any file ending in `.gradle` in the `$USER_HOME/.gradle/init.d/` directory. See [here](https://docs.gradle.org/current/userguide/init_scripts.html) for more information on initialization scripts.
+
+```groovy
+initscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2" }
+    }
+    dependencies {
+	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.2.1"
+    }
+}
+rootProject {
+    apply plugin: com.dorongold.gradle.tasktree.TaskTreePlugin
+}
+```
+
 # Usage
 
 `gradle <task 1>...<task N> taskTree`
