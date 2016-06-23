@@ -20,7 +20,7 @@ repositories {
 }
 
 group = 'com.dorongold.plugins'
-version = '1.2.1'
+version = '1.2.2'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
 dependencies {

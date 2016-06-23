@@ -12,12 +12,12 @@ import org.gradle.execution.taskgraph.TaskExecutionPlan
 import org.gradle.execution.taskgraph.TaskInfo
 import org.gradle.initialization.BuildClientMetaData
 import org.gradle.internal.graph.GraphRenderer
-import org.gradle.logging.StyledTextOutput
+import org.gradle.internal.logging.text.StyledTextOutput
 import org.gradle.util.CollectionUtils
 
 import java.lang.reflect.Field
 
-import static org.gradle.logging.StyledTextOutput.Style.*
+import static org.gradle.internal.logging.text.StyledTextOutput.Style.*
 
 /**
  * User: dorongold

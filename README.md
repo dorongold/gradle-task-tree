@@ -4,17 +4,19 @@ Gradle plugin that adds a `taskTree` task that prints task dependency tree repor
 
 The task dependency tree is printed with a similar format to that of the built-in `dependencies` task.
 
-# Installation
+## Installation
 
 The plugin can be configured in the [build script](https://gradle.org/docs/current/userguide/plugins.html) or in an [init script](http://gradle.org/docs/current/userguide/init_scripts.html).
 
 The plugin is published on [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dorongold.task-tree).
 
+See compatibility matrix with older gradle versions [below](#version-compatibility)
+
 ## Build Script Snippet
 
 ```groovy
 plugins {
-    id "com.dorongold.task-tree" version "1.2.1"
+    id "com.dorongold.task-tree" version "1.2.2"
 }
 ```
 
@@ -28,7 +30,7 @@ initscript {
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
-	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.2.1"
+	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.2.2"
     }
 }
 rootProject {
@@ -36,7 +38,7 @@ rootProject {
 }
 ```
 
-# Usage
+## Usage
 
 `gradle <task 1>...<task N> taskTree`
 
@@ -104,10 +106,13 @@ No task dependencies
 
 ```
 
-# Version Compatibility
-Gradle 2.3+  
-Java 1.7+
+## Version Compatibility
 
-# Acknowledgements
+| Gradle Version | Task Tree Version | Java Version |
+|--------------|----------------|----------------|
+| 2.14+        | 1.2.2          | 1.7+           |
+| 2.3-2.13     | 1.2.1          | 1.7+           |
+
+## Acknowledgements
 
 Some functionality is based on [gradle-visteg plugin](https://github.com/mmalohlava/gradle-visteg) - a plugin that creates an image with a DAG representation of the task tree.
