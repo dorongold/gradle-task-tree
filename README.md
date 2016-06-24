@@ -10,7 +10,7 @@ The plugin can be configured in the [build script](https://gradle.org/docs/curre
 
 The plugin is published on [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dorongold.task-tree).
 
-See compatibility matrix with older gradle versions [below](#version-compatibility)
+See [compatibility matrix with older gradle versions](#version-compatibility).
 
 ## Build Script Snippet
 
