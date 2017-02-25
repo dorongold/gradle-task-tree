@@ -11,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"
     }
 }
 
@@ -20,10 +20,10 @@ repositories {
 }
 
 group = 'com.dorongold.plugins'
-version = '1.2.2'
+version = '1.3'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
-//Building a text file that contains the classpath of the plugin code. needed for testing on gradle version prior to 2.5
+//Building a text file that contains the classpath of the plugin code. needed for testing on gradle versions prior to 2.5
 task createClasspathManifest {
     def outputDir = file("$buildDir/$name")
 
