@@ -23,10 +23,29 @@ group = 'com.dorongold.plugins'
 version = '1.2.2'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
+//Building a text file that contains the classpath of the plugin code. needed for testing on gradle version prior to 2.5
+task createClasspathManifest {
+    def outputDir = file("$buildDir/$name")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+    }
+}
+
 dependencies {
     compile localGroovy()
     compile gradleApi()
     compile 'org.apache.commons:commons-lang3:3.4'
+
+    testCompile gradleTestKit()
+    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+        exclude module: 'groovy-all'
+    }
+    testRuntime files(createClasspathManifest)
 }
 
 pluginBundle {
