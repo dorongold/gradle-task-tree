@@ -61,3 +61,10 @@ pluginBundle {
         }
     }
 }
+
+// print out test output
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+}
