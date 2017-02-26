@@ -62,6 +62,19 @@ pluginBundle {
     }
 }
 
+if (System.env.TRAVIS == 'true') {
+    allprojects {
+        tasks.withType(GroovyCompile) {
+            groovyOptions.fork = false
+        }
+        tasks.withType(Test) {
+            // travis CI containers (currently) have 2 dedicated cores and 4GB of memory
+            maxParallelForks = 1
+            minHeapSize = '128m'
+        }
+    }
+}
+
 // print out test output
 test {
     testLogging {
