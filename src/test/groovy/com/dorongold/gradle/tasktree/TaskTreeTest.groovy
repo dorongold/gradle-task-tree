@@ -46,6 +46,7 @@ class TaskTreeTest extends Specification {
 
     def "running taskTree on the build task in every supported gradle version"() {
         given:
+        println "--------------------- Testing gradle version ${gradleVersion} ---------------------"
         def classpathString = pluginClasspath
                 .collect { it.absolutePath.replace('\\', '\\\\') } // escape backslashes in Windows paths
                 .collect { "'$it'" }
@@ -66,7 +67,7 @@ class TaskTreeTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('build', 'taskTree')
                 .withGradleVersion(gradleVersion as String)
-                .forwardOutput()
+//                .forwardOutput()
                 .withJvmArguments("-Xmx128m")
                 .build()
 
@@ -83,7 +84,7 @@ class TaskTreeTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('build', 'taskTree', '--no-repeat')
                 .withGradleVersion(gradleVersion as String)
-                .forwardOutput()
+//                .forwardOutput()
                 .withJvmArguments("-Xmx128m")
                 .build()
 

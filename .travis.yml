@@ -6,7 +6,3 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
-
-env:
-  global:
-    - GRADLE_OPTS="-Xms128m"
