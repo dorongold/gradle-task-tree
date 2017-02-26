@@ -66,6 +66,7 @@ class TaskTreeTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('build', 'taskTree')
                 .withGradleVersion(gradleVersion as String)
+                .withJvmArguments("-Xmx128m")
                 .build()
 
         then:
@@ -81,6 +82,7 @@ class TaskTreeTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('build', 'taskTree', '--no-repeat')
                 .withGradleVersion(gradleVersion as String)
+                .withJvmArguments("-Xmx128m")
                 .build()
 
         then:
