@@ -7,7 +7,7 @@ cache:
   - "$HOME/.gradle/wrapper/"
 deploy:
   provider: script
-  script: gradlew publishPlugins
+  script: ./gradlew publishPlugins
   on:
     branch: master
     tags: true
