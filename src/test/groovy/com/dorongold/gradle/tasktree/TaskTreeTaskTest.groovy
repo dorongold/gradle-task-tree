@@ -13,7 +13,7 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 /**
  * Created by dorongold on 2/18/17.
  */
-class TaskTreeTest extends Specification {
+class TaskTreeTaskTest extends Specification {
 
     public static final String CURRENT_GRADLE_ENDPOINT = 'https://services.gradle.org/versions/current'
     @ClassRule
