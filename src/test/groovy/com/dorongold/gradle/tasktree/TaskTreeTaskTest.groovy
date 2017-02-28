@@ -8,6 +8,7 @@ import org.junit.ClassRule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
@@ -19,6 +20,8 @@ class TaskTreeTaskTest extends Specification {
 
     public static final String GRADLE_CURRENT_VERSION_ENDPOINT = 'https://services.gradle.org/versions/current'
     public static final String GRADLE_ALL_VERSIONS_ENDPOINT = 'https://services.gradle.org/versions/all'
+    //Earlier gradle versions do not support inspecting the build's text output when run in debug mode, using BuildResult.getOutput().
+    public static final String GRADLE_MINIMUM_TESTED_VERSION = '2.9'
     @ClassRule
     @Shared
     TemporaryFolder testProjectDir = new TemporaryFolder()
@@ -37,7 +40,8 @@ class TaskTreeTaskTest extends Specification {
         populateTestedGradleVersions()
     }
 
-    def "test output of taskTree on the build task in every supported gradle version"() {
+    @Unroll
+    def "test output of taskTree on the build task in gradle version #gradleVersion"() {
         setup:
         println "--------------------- Testing gradle version ${gradleVersion} ---------------------"
 
@@ -46,7 +50,10 @@ class TaskTreeTaskTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('build', 'taskTree')
                 .withGradleVersion(gradleVersion)
-                .forwardOutput()
+        // running in debug mode as a workaround to prevent gradle from spawning new gradle daemons  - which causes the build to fail on Travis CI
+        // debug mode runs "embedded" gradle
+                .withDebug(true)
+//                .forwardOutput()
                 .build()
 
         then:
@@ -62,7 +69,10 @@ class TaskTreeTaskTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('build', 'taskTree', '--no-repeat')
                 .withGradleVersion(gradleVersion)
-                .forwardOutput()
+        // running in debug mode as a workaround to prevent gradle from spawning new gradle daemons  - which causes the build to fail on Travis CI
+        // debug mode runs "embedded" gradle
+                .withDebug(true)
+//                .forwardOutput()
                 .build()
 
         then:
@@ -135,7 +145,7 @@ class TaskTreeTaskTest extends Specification {
             def isGreaterThanCurrent = GradleVersion.version(it.version) > GradleVersion.version(currentGradleVersion)
             !it.snapshot && !it.rcFor && (isGreaterThanCurrent || isMilestone) ? it.version : null
         }.findAll {
-            GradleVersion.version(it) >= GradleVersion.version(TaskTreePlugin.GRADLE_MINIMUM_SUPPORTED_VERSION)
+            GradleVersion.version(it) >= GradleVersion.version(GRADLE_MINIMUM_TESTED_VERSION)
         }
     }
 
