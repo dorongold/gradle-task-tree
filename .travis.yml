@@ -1,6 +1,7 @@
 language: groovy
 jdk:
   - oraclejdk8
+  - oraclejdk7
 
 install: true
 script: ./gradlew build --info --full-stacktrace --no-daemon
