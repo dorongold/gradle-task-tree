@@ -110,7 +110,7 @@ class TaskTreeTaskTest extends Specification {
 
     private void populateGradleProperties() {
         gradlePropertiesFile << """
-            org.gradle.jvmargs=-Xmx128m
+            org.gradle.jvmargs=-Xmx128m -XX:MaxPermSize=128m
             org.gradle.daemon.idletimeout=1000
         """
     }
