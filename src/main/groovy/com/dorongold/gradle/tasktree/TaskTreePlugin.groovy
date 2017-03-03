@@ -21,14 +21,10 @@ class TaskTreePlugin implements Plugin<Project> {
     void apply(Project project) {
         project.allprojects { p ->
             if (p.tasks.findByName(TASK_TREE_TASK_NAME)) {
-                // Skip of this sub-project already has our task. This can happen for example if the plugin is applied on allProjects.
+                // Skip if this sub-project already has our task. This can happen for example if the plugin is applied on allProjects.
                 return
             }
-            p.task(TASK_TREE_TASK_NAME, type: TaskTreeTask) {
-                // Run the task only for the current project and not for sub-projects.
-                // The DependencyReportTask and other help tasks do the same. See: org.gradle.api.plugins.HelpTasksPlugin
-                impliesSubProjects = true
-            }
+            p.task(TASK_TREE_TASK_NAME, type: TaskTreeTask)
             p.gradle.taskGraph.whenReady {
                 if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTask }) {
                     validateGradleVersion()
