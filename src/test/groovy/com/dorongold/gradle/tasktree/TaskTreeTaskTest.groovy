@@ -129,6 +129,7 @@ class TaskTreeTaskTest extends Specification {
         def result = GradleRunner.create()
                 .withProjectDir(sampleProject.dir)
                 .withArguments('build', 'taskTree', '--no-repeat')
+                .withDebug(true)
 //                .forwardOutput()
                 .build()
 
@@ -141,6 +142,7 @@ class TaskTreeTaskTest extends Specification {
         result = GradleRunner.create()
                 .withProjectDir(sampleProject.dir)
                 .withArguments(':api:build', ':api:taskTree', '--no-repeat')
+                .withDebug(true)
 //                .forwardOutput()
                 .build()
 
@@ -151,6 +153,7 @@ class TaskTreeTaskTest extends Specification {
         result = GradleRunner.create()
                 .withProjectDir(sampleProject.dir)
                 .withArguments(':services:personService:build', ':services:personService:taskTree', '--no-repeat')
+                .withDebug(true)
 //                .forwardOutput()
                 .build()
 
