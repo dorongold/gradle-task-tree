@@ -131,13 +131,13 @@ For a large task-tree it has the effect of reducing size of output without loosi
 You may add a configuration block for `taskTree` in your `build.gradle` (or, in case you take the [Init Script approach](#init-script-snippet), your `init.gradle`).
 In the configuration block you can set:
 - `noRepeat = true` has the same effect as passing `--no-repeat` to `taskTree` at command-line.
-- `impliesSubProjects = false`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This will reduce size of output.
+- `impliesSubProjects = true`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This will reduce size of output.
 
 ```groovy
 //optional configuration
 taskTree{
     noRepeat = true  //do not print a sub-tree in the task-tree more than once
-    impliesSubProjects = false  //do not print task-tree for child projects in a multi-project
+    impliesSubProjects = true  //do not print task-tree for child projects in a multi-project
 }
 ```
 ####Note:
