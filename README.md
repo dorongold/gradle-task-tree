@@ -10,8 +10,6 @@ The plugin can be configured in the [build script](https://gradle.org/docs/curre
 
 The plugin is published on [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dorongold.task-tree).
 
-See [compatibility matrix with older gradle versions](#version-compatibility).
-
 ## Build Script Snippet
 
 ```groovy
@@ -22,7 +20,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.2.2"
+    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.3"
   }
 }
 
@@ -32,7 +30,7 @@ apply plugin: "com.dorongold.task-tree"
 ###Alternative Build Script Snippet (using the incubating "plugins" mechanism ):
 ```groovy
 plugins {
-    id "com.dorongold.task-tree" version "1.2.2"
+    id "com.dorongold.task-tree" version "1.3"
 }
 ```
 
@@ -46,7 +44,7 @@ initscript {
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
-	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.2.2"
+	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.3"
     }
 }
 rootProject {
@@ -122,12 +120,30 @@ No task dependencies
 
 ```
 
-## Version Compatibility
+### Configuration
+When running the`taskTree` task from command-line, you can add the flag: `--no-repeat`.  
+This prevents sections of the tree from being printed more than once.  
+For a large task-tree it has the effect of reducing size of output without loosing information.
 
-| Gradle Version | Task Tree Version | Java Version |
-|--------------|----------------|----------------|
-| 2.14+        | 1.2.2          | 1.7+           |
-| 2.3-2.13     | 1.2.1          | 1.7+           |
+You may add a configuration block for `taskTree` in your `build.gradle` (or, in case you take the [Init Script approach](init-script-snippet), your `init.gradle`).
+In the configuration block you can set:
+- `noRepeat = true` has the same effect as passing `--no-repeat` to `taskTree` at command-line.
+- `setImpliesSubProjects = false`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This will reduce size of output.
+
+```groovy
+//optional configuration
+taskTree{
+    noRepeat = true  //do not print a sub-tree in the task-tree more than once
+    impliesSubProjects = false  //do not print task-tree for child projects in a multi-project
+}
+```
+####Note:
+In a multi-project, it is recommended to apply the plugin on the root project only. The `taskTree` task will automatically be added to child projects.  
+I.e. it is unnecessary to apply this plugin under `allprojects` or `subprojects`.
+
+## Version Compatibility
+Gradle 2.3+  
+Java 1.7+
 
 ## Acknowledgements
 
