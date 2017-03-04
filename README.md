@@ -1,5 +1,8 @@
 # Gradle Task Tree
 
+[![Build Status](https://travis-ci.org/dorongold/gradle-task-tree.svg?branch=master)](https://travis-ci.org/dorongold/gradle-task-tree)
+[![version](https://img.shields.io/badge/version-1.3-orange.svg)](./CHANGELOG.md)
+
 Gradle plugin that adds a `taskTree` task that prints task dependency tree report to the console.
 
 The task dependency tree is printed with a similar format to that of the built-in `dependencies` task.
