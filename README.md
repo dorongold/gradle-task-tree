@@ -30,7 +30,7 @@ buildscript {
 apply plugin: "com.dorongold.task-tree"
 ```
 
-###Alternative Build Script Snippet (using the incubating "plugins" mechanism ):
+### Alternative Build Script Snippet (using the incubating "plugins" mechanism ):
 ```groovy
 plugins {
     id "com.dorongold.task-tree" version "1.3"
