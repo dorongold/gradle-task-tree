@@ -123,9 +123,9 @@ No task dependencies
 ```
 
 ### Configuration
-When running the`taskTree` task from command-line, you can add the flag: `--no-repeat`.  
+When running the `taskTree` task from command-line, you can add the flag: `--no-repeat`.  
 This prevents sections of the tree from being printed more than once.  
-For a large task-tree it has the effect of reducing size of output without loosing information.
+For a large task-tree it has the effect of reducing the size of output without loosing information.
 
 You may add a configuration block for `taskTree` in your `build.gradle` (or, in case you take the [Init Script approach](#init-script-snippet), your `init.gradle`).
 In the configuration block you can set:
