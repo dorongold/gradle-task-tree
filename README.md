@@ -1,6 +1,5 @@
 # Gradle Task Tree
 
-[![Build Status](https://travis-ci.org/dorongold/gradle-task-tree.svg?branch=master)](https://travis-ci.org/dorongold/gradle-task-tree)
 [![version](https://img.shields.io/badge/version-1.3-orange.svg)](./CHANGELOG.md)
 
 Gradle plugin that adds a `taskTree` task that prints task dependency tree report to the console.
@@ -131,7 +130,7 @@ For a large task-tree it has the effect of reducing size of output without loosi
 You may add a configuration block for `taskTree` in your `build.gradle` (or, in case you take the [Init Script approach](#init-script-snippet), your `init.gradle`).
 In the configuration block you can set:
 - `noRepeat = true` has the same effect as passing `--no-repeat` to `taskTree` at command-line.
-- `impliesSubProjects = true`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This will reduce size of output.
+- `impliesSubProjects = true`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This can reduce the size of output.
 
 ```groovy
 //optional configuration
@@ -140,7 +139,7 @@ taskTree{
     impliesSubProjects = true  //do not print task-tree for child projects in a multi-project
 }
 ```
-####Note:
+#### Note:
 In a multi-project, it is recommended to apply the plugin on the root project only. The `taskTree` task will automatically be added to child projects.  
 I.e. it is unnecessary to apply this plugin under `allprojects` or `subprojects`.
 
