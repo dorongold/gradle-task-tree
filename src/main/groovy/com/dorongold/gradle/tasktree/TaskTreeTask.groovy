@@ -2,10 +2,10 @@ package com.dorongold.gradle.tasktree
 
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
-import org.gradle.api.internal.tasks.options.Option
 import org.gradle.api.tasks.diagnostics.AbstractReportTask
 import org.gradle.api.tasks.diagnostics.internal.ReportRenderer
 import org.gradle.api.tasks.diagnostics.internal.TextReportRenderer
+import org.gradle.api.tasks.options.Option
 import org.gradle.execution.taskgraph.TaskExecutionPlan
 import org.gradle.execution.taskgraph.TaskInfo
 import org.gradle.initialization.BuildClientMetaData
