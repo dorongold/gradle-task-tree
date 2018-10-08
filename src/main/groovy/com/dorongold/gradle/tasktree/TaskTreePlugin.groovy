@@ -14,6 +14,7 @@ class TaskTreePlugin implements Plugin<Project> {
 
     public static final String TASK_TREE_TASK_NAME = 'taskTree'
     public static String GRADLE_MINIMUM_SUPPORTED_VERSION = '2.3'
+    public static String GRADLE_VERSION_5 = '5.0-milestone-1'
     public static String UNSUPPORTED_GRADLE_VERSION_MESSAGE =
             "The taskTree task (defined by the task-tree plugin) cannot be run on a gradle version older than ${GRADLE_MINIMUM_SUPPORTED_VERSION}"
 
@@ -24,7 +25,11 @@ class TaskTreePlugin implements Plugin<Project> {
                 // Skip if this sub-project already has our task. This can happen for example if the plugin is applied on allProjects.
                 return
             }
-            p.task(TASK_TREE_TASK_NAME, type: TaskTreeTask)
+            if (GradleVersion.current() < GradleVersion.version(GRADLE_VERSION_5)) {
+                p.task(TASK_TREE_TASK_NAME, type: TaskTreeTaskOld)
+            } else {
+                p.task(TASK_TREE_TASK_NAME, type: TaskTreeTaskNew)
+            }
             p.gradle.taskGraph.whenReady {
                 if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTask }) {
                     validateGradleVersion()

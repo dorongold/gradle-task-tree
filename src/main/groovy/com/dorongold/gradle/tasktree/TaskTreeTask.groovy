@@ -2,12 +2,9 @@ package com.dorongold.gradle.tasktree
 
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
-import org.gradle.api.internal.tasks.options.Option
 import org.gradle.api.tasks.diagnostics.AbstractReportTask
 import org.gradle.api.tasks.diagnostics.internal.ReportRenderer
 import org.gradle.api.tasks.diagnostics.internal.TextReportRenderer
-import org.gradle.execution.taskgraph.TaskExecutionPlan
-import org.gradle.execution.taskgraph.TaskInfo
 import org.gradle.initialization.BuildClientMetaData
 import org.gradle.internal.graph.GraphRenderer
 import org.gradle.util.CollectionUtils
@@ -16,9 +13,9 @@ import org.gradle.util.CollectionUtils
  * User: dorongold
  * Date: 10/09/15
  */
-class TaskTreeTask extends AbstractReportTask {
+abstract class TaskTreeTask extends AbstractReportTask {
     public TextReportRenderer renderer = new TextReportRenderer()
-    private boolean noRepeat = false
+    protected boolean noRepeat = false
 
     @Override
     protected ReportRenderer getRenderer() {
@@ -36,10 +33,15 @@ class TaskTreeTask extends AbstractReportTask {
 
         TaskExecutionGraph executionGraph = project.gradle.taskGraph
         // Getting a private field is possible thanks to groovy not honoring the private modifier
-        TaskExecutionPlan executionPlan = executionGraph.taskExecutionPlan
+        def executionPlan
+        if (executionGraph.hasProperty("taskExecutionPlan")) {
+            executionPlan = executionGraph.taskExecutionPlan
+        } else {
+            executionPlan = executionGraph.executionPlan
+        }
         // Getting a private field is possible thanks to groovy not honoring the private modifier
-        Set<TaskInfo> entryTasks = executionPlan.entryTasks
-        Set<TaskInfo> tasksOfCurrentProject = entryTasks.findAll { it.getTask().getProject() == project }
+        Set entryTasks = executionPlan.entryTasks
+        Set tasksOfCurrentProject = entryTasks.findAll { it.getTask().getProject() == project }
 
         // take advantage of gradle's dynamic nature and get the Style enum (which has different FQNs in different gradle versions)
         // from textOutput (which itself is of a dynamic type)
@@ -83,27 +85,25 @@ class TaskTreeTask extends AbstractReportTask {
         textOutput.println()
     }
 
-    @Option(option = "no-repeat", description = "prevent printing same subtree more than once")
-    void setNoRepeat(boolean noRepeat) {
-        this.noRepeat = noRepeat
-    }
-
     boolean isNoRepeat() {
         return noRepeat
     }
 
-    void render(final TaskInfo entryTask, GraphRenderer renderer, boolean lastChild,
+    void render(def entryTask, GraphRenderer renderer, boolean lastChild,
                 final textOutput, boolean isFirst, Set<Object> rendered) {
-        final boolean taskSubtreeAlreadyPrinted = rendered.add(entryTask)
+
+        final boolean taskSubtreeAlreadyPrinted = !rendered.add(entryTask)
+
         renderer.visit({ styledTextOutput ->
             Class Style = styledTextOutput.style.class
             styledTextOutput.withStyle(isFirst ? Style.Identifier : Style.Normal)
-            styledTextOutput.text(entryTask.task.path + ((!noRepeat || taskSubtreeAlreadyPrinted) ? "" : " *"))
+            styledTextOutput.text(entryTask.task.path + (noRepeat && taskSubtreeAlreadyPrinted ? " *" : ""))
         }, lastChild)
-        if (!noRepeat || taskSubtreeAlreadyPrinted) {
+
+        if (!noRepeat || !taskSubtreeAlreadyPrinted) {
             renderer.startChildren()
-            Set<TaskInfo> children = entryTask.dependencySuccessors
-            children.eachWithIndex { TaskInfo child, int i ->
+            Set children = entryTask.dependencySuccessors + entryTask.dependencySuccessors
+            children.eachWithIndex { def child, int i ->
                 this.render(child, renderer, i == children.size() - 1, textOutput, false, rendered)
             }
             renderer.completeChildren()
