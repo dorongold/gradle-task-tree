@@ -16,6 +16,7 @@ import org.gradle.util.CollectionUtils
 abstract class TaskTreeTask extends AbstractReportTask {
     public TextReportRenderer renderer = new TextReportRenderer()
     protected boolean noRepeat = false
+    protected int maxDepth = Integer.MAX_VALUE
 
     @Override
     protected ReportRenderer getRenderer() {
@@ -47,8 +48,8 @@ abstract class TaskTreeTask extends AbstractReportTask {
         // from textOutput (which itself is of a dynamic type)
         Class Style = textOutput.style.class
 
-        tasksOfCurrentProject.findAll { !(it.task.class in TaskTreeTask) }.each {
-            render(it, new GraphRenderer(textOutput), true, textOutput, true, new HashSet<Object>())
+        tasksOfCurrentProject.findAll { !(it.task.class in TaskTreeTask) }.findAll { it.hasProperty('task') }.each {
+            render(it, new GraphRenderer(textOutput), true, textOutput, true, new HashSet<Object>(), 1)
             if (it.dependencySuccessors.isEmpty()) {
                 textOutput.withStyle(Style.Info).text("No task dependencies")
                 textOutput.println()
@@ -58,8 +59,8 @@ abstract class TaskTreeTask extends AbstractReportTask {
 
         if (noRepeat) {
             textOutput.println()
-            textOutput.text("(*) - subtree omitted (printed previously)")
-            textOutput.println()
+            textOutput.println("(*) - subtree omitted (printed previously)")
+            textOutput.println("(..>) - subtree omitted (exceeds task-depth)")
         }
 
         textOutput.println()
@@ -89,22 +90,38 @@ abstract class TaskTreeTask extends AbstractReportTask {
         return noRepeat
     }
 
+    int getMaxDepth() {
+        return maxDepth
+    }
+
     void render(def entryTask, GraphRenderer renderer, boolean lastChild,
-                final textOutput, boolean isFirst, Set<Object> rendered) {
+                final textOutput, boolean isFirst, Set<Object> rendered, int depth) {
 
         final boolean taskSubtreeAlreadyPrinted = !rendered.add(entryTask)
+        final Set children = (entryTask.dependencySuccessors + entryTask.dependencySuccessors).findAll { it.hasProperty('task') }
+        final boolean hasChildren = !children.isEmpty()
+        final boolean skippingChildren = hasChildren && depth > maxDepth
 
         renderer.visit({ styledTextOutput ->
             Class Style = styledTextOutput.style.class
             styledTextOutput.withStyle(isFirst ? Style.Identifier : Style.Normal)
-            styledTextOutput.text(entryTask.task.path + (noRepeat && taskSubtreeAlreadyPrinted ? " *" : ""))
+            styledTextOutput.text(entryTask.task.path)
+
+            if (skippingChildren) {
+                styledTextOutput.text(" ..>")
+            }
+
+            if (noRepeat && taskSubtreeAlreadyPrinted) {
+                styledTextOutput.text(" *")
+            }
         }, lastChild)
 
-        if (!noRepeat || !taskSubtreeAlreadyPrinted) {
+        if (skippingChildren) {
+            // skip children because depth is exceeded
+        } else if (!noRepeat || !taskSubtreeAlreadyPrinted) {
             renderer.startChildren()
-            Set children = entryTask.dependencySuccessors + entryTask.dependencySuccessors
             children.eachWithIndex { def child, int i ->
-                this.render(child, renderer, i == children.size() - 1, textOutput, false, rendered)
+                this.render(child, renderer, i == children.size() - 1, textOutput, false, rendered, depth + 1)
             }
             renderer.completeChildren()
         }

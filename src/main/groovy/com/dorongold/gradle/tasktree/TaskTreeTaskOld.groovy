@@ -7,4 +7,9 @@ class TaskTreeTaskOld extends TaskTreeTask{
     void setNoRepeat(boolean noRepeat) {
         super.noRepeat = noRepeat
     }
+
+    @Option(option = "task-depth", description = "descend at most `n' levels into each task dependency")
+    void setMaxDepth(String depth) {
+        super.maxDepth = depth.toInteger()
+    }
 }
