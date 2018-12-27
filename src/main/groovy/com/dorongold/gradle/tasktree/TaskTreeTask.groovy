@@ -103,7 +103,7 @@ abstract class TaskTreeTask extends AbstractReportTask {
         if (!noRepeat || !taskSubtreeAlreadyPrinted) {
             renderer.startChildren()
             Set children = entryTask.dependencySuccessors + entryTask.dependencySuccessors
-            children.eachWithIndex { def child, int i ->
+            children.findAll { it.hasProperty('task') }.eachWithIndex { def child, int i ->
                 this.render(child, renderer, i == children.size() - 1, textOutput, false, rendered)
             }
             renderer.completeChildren()
