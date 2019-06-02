@@ -132,14 +132,14 @@ You may add a configuration block for `taskTree` in your `build.gradle` (or, in 
 In the configuration block you can set:
 - `noRepeat = true` has the same effect as passing `--no-repeat` to `taskTree` at command-line.
 - `impliesSubProjects = true`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This can reduce the size of output.
-- `maxDepth = <number>` e.g: `maxDepth = 3` limits the depth of the printed tree.
+- `taskDepth = <number>` e.g: `taskDepth = 3` limits the depth of the printed tree.
 
 ```groovy
 //optional configuration
 taskTree{
     noRepeat = true  //do not print a sub-tree in the task-tree more than once
     impliesSubProjects = true  //do not print task-tree for child projects in a multi-project
-    maxDepth = 3 // limit tree depth to 3. Equivalent to running with the --task-depth option.
+    taskDepth = 3 // limit tree depth to 3. Equivalent to running with the --task-depth option.
 }
 ```
 #### Note:

@@ -16,7 +16,7 @@ import org.gradle.util.CollectionUtils
 abstract class TaskTreeTask extends AbstractReportTask {
     public TextReportRenderer renderer = new TextReportRenderer()
     protected boolean noRepeat = false
-    protected int maxDepth = Integer.MAX_VALUE
+    protected int taskDepth = Integer.MAX_VALUE
 
     @Override
     protected ReportRenderer getRenderer() {
@@ -59,8 +59,12 @@ abstract class TaskTreeTask extends AbstractReportTask {
 
         if (noRepeat) {
             textOutput.println()
-            textOutput.println("(*) - subtree omitted (printed previously)")
-            textOutput.println("(..>) - subtree omitted (exceeds task-depth)")
+            textOutput.text("(*) - subtree omitted (printed previously)")
+        }
+
+        if (taskDepth < Integer.MAX_VALUE) {
+            textOutput.println()
+            textOutput.text("(..>) - subtree omitted (exceeds task-depth)")
         }
 
         textOutput.println()
@@ -90,8 +94,9 @@ abstract class TaskTreeTask extends AbstractReportTask {
         return noRepeat
     }
 
-    int getMaxDepth() {
-        return maxDepth
+
+    int getTaskDepth() {
+        return taskDepth
     }
 
     void render(def entryTask, GraphRenderer renderer, boolean lastChild,
@@ -100,7 +105,7 @@ abstract class TaskTreeTask extends AbstractReportTask {
         final boolean taskSubtreeAlreadyPrinted = !rendered.add(entryTask)
         final Set children = (entryTask.dependencySuccessors + entryTask.dependencySuccessors).findAll { it.hasProperty('task') }
         final boolean hasChildren = !children.isEmpty()
-        final boolean skippingChildren = hasChildren && depth > maxDepth
+        final boolean skippingChildren = hasChildren && depth > taskDepth
 
         renderer.visit({ styledTextOutput ->
             Class Style = styledTextOutput.style.class
