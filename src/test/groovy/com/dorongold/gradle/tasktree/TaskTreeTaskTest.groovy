@@ -25,6 +25,7 @@ class TaskTreeTaskTest extends Specification {
     public static final String GRADLE_ALL_VERSIONS_ENDPOINT = 'https://services.gradle.org/versions/all'
     //Earlier gradle versions do not support inspecting the build's text output when run in debug mode, using BuildResult.getOutput().
     public static final String GRADLE_MINIMUM_TESTED_VERSION = '2.9'
+    public static final List<String> SOME_GRADLE_VERSIONS_TO_TEST = ['2.14', '3.5', '4.10', '5.4']
     @ClassRule
     @Shared
     TemporaryFolder testProjectDir = new TemporaryFolder()
@@ -209,7 +210,6 @@ Root project
 
 
 (*) - subtree omitted (printed previously)
-
 '''.stripIndent()
     }
 
@@ -362,7 +362,6 @@ Project :api
 
 
 (*) - subtree omitted (printed previously)
-
 '''.stripIndent()
     }
 
@@ -440,11 +439,12 @@ Project :services:personService
         def allGradleVersionsJson = GRADLE_ALL_VERSIONS_ENDPOINT.toURL().text
         def allGradleVersions = new JsonSlurper().parseText(allGradleVersionsJson)
         testedGradleVersions = allGradleVersions.findResults {
-            def isMilestone = !it.milestoneFor && !it.version.contains('milestone')
+            def isMilestone = it.milestoneFor || it.version.contains('milestone')
             def isGreaterThanCurrent = GradleVersion.version(it.version) > GradleVersion.version(currentGradleVersion)
-            !it.snapshot && !it.rcFor && (isGreaterThanCurrent || isMilestone) ? it.version : null
+            !it.snapshot && !it.rcFor && (isGreaterThanCurrent || !isMilestone) ? it.version : null
         }.findAll {
-            GradleVersion.version(it) >= GradleVersion.version(GRADLE_MINIMUM_TESTED_VERSION)
+            // GradleVersion.version(it) >= GradleVersion.version(GRADLE_MINIMUM_TESTED_VERSION)
+            it in SOME_GRADLE_VERSIONS_TO_TEST + currentGradleVersion
         }
     }
 
