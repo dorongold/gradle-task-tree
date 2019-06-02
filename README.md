@@ -126,13 +126,13 @@ No task dependencies
 When running the `taskTree` task from command-line, you can add the flag: `--no-repeat`.  
 This prevents sections of the tree from being printed more than once.  
 For a large task-tree it has the effect of reducing the size of output without loosing information.  
-You may also add the option `--task-depth <number>` to limit the depth of the printed tree.
+To limit the depth of the printed tree add the command-line option: `--task-depth <number>`.
 
 You may add a configuration block for `taskTree` in your `build.gradle` (or, in case you take the [Init Script approach](#init-script-snippet), your `init.gradle`).
 In the configuration block you can set:
 - `noRepeat = true` has the same effect as passing `--no-repeat` to `taskTree` at command-line.
 - `impliesSubProjects = true`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This can reduce the size of output.
-- `maxDepth = <integer>` e.g: `maxDepth = 3` limits the depth of the printed tree.
+- `maxDepth = <number>` e.g: `maxDepth = 3` limits the depth of the printed tree.
 
 ```groovy
 //optional configuration
