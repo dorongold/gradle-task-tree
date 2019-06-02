@@ -1,6 +1,6 @@
 # Gradle Task Tree
 
-[![version](https://img.shields.io/badge/version-1.3.1-orange.svg)](./CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-1.4-orange.svg)](./CHANGELOG.md)
 
 Gradle plugin that adds a `taskTree` task that prints task dependency tree report to the console.
 
@@ -22,7 +22,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.3.1"
+    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.4"
   }
 }
 
@@ -32,7 +32,7 @@ apply plugin: "com.dorongold.task-tree"
 ### Alternative Build Script Snippet (using the incubating "plugins" mechanism ):
 ```groovy
 plugins {
-    id "com.dorongold.task-tree" version "1.3.1"
+    id "com.dorongold.task-tree" version "1.4"
 }
 ```
 
@@ -46,7 +46,7 @@ initscript {
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
-	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.3.1"
+	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.4"
     }
 }
 rootProject {
@@ -125,18 +125,21 @@ No task dependencies
 ### Configuration
 When running the `taskTree` task from command-line, you can add the flag: `--no-repeat`.  
 This prevents sections of the tree from being printed more than once.  
-For a large task-tree it has the effect of reducing the size of output without loosing information.
+For a large task-tree it has the effect of reducing the size of output without loosing information.  
+You may also add the option `--task-depth <number>` to limit the depth of the printed tree.
 
 You may add a configuration block for `taskTree` in your `build.gradle` (or, in case you take the [Init Script approach](#init-script-snippet), your `init.gradle`).
 In the configuration block you can set:
 - `noRepeat = true` has the same effect as passing `--no-repeat` to `taskTree` at command-line.
 - `impliesSubProjects = true`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This can reduce the size of output.
+- `maxDepth = <integer>` e.g: `maxDepth = 3` limits the depth of the printed tree.
 
 ```groovy
 //optional configuration
 taskTree{
     noRepeat = true  //do not print a sub-tree in the task-tree more than once
     impliesSubProjects = true  //do not print task-tree for child projects in a multi-project
+    maxDepth = 3 // limit tree depth to 3. Equivalent to running with the --task-depth option.
 }
 ```
 #### Note:

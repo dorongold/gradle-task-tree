@@ -65,7 +65,7 @@ abstract class TaskTreeTask extends AbstractReportTask {
 
         textOutput.println()
         textOutput.text("To see task dependency tree for a specific task, run ")
-        metaData.describeCommand(textOutput.withStyle(Style.UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--no-repeat]"))
+        metaData.describeCommand(textOutput.withStyle(Style.UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--no-repeat] [--task-depth <depth>]"))
         textOutput.println()
 
         textOutput.text("Executions of all tasks except for ")

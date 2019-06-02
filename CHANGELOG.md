@@ -4,9 +4,11 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Unreleased
+
+Version 1.4 (2019-06-01)
 ----------------------------
-Display finalizer tasks (i.e. those declared with`finalizedBy`)
+* Add `--task-depth` option to limit tree depth.
+* Fix bug: `No such property task for class TransformInfo$ChainedTransformInfo`
 
 Version 1.3.1 (2018-10-08)
 ----------------------------
