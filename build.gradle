@@ -1,3 +1,4 @@
+
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: "com.gradle.plugin-publish"
@@ -20,7 +21,7 @@ repositories {
 }
 
 group = 'com.dorongold.plugins'
-version = '1.4'
+version = '1.5'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
 //Building a text file that contains the classpath of the plugin code. needed for testing on gradle versions prior to 2.5
