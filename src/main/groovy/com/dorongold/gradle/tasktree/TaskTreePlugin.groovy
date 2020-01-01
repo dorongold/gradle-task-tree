@@ -12,9 +12,11 @@ import org.gradle.util.GradleVersion
  */
 class TaskTreePlugin implements Plugin<Project> {
 
+    private static boolean IS_GRADLE_MIN_49 = GradleVersion.current().compareTo(GradleVersion.version('4.9-rc-1')) >= 0
+    private static boolean IS_GRADLE_MIN_50 = GradleVersion.current().compareTo(GradleVersion.version('5.0-milestone-1')) >= 0
+
     public static final String TASK_TREE_TASK_NAME = 'taskTree'
     public static String GRADLE_MINIMUM_SUPPORTED_VERSION = '2.3'
-    public static String GRADLE_VERSION_5 = '5.0-milestone-1'
     public static String UNSUPPORTED_GRADLE_VERSION_MESSAGE =
             "The taskTree task (defined by the task-tree plugin) cannot be run on a gradle version older than ${GRADLE_MINIMUM_SUPPORTED_VERSION}"
 
@@ -25,10 +27,10 @@ class TaskTreePlugin implements Plugin<Project> {
                 // Skip if this sub-project already has our task. This can happen for example if the plugin is applied on allProjects.
                 return
             }
-            if (GradleVersion.current() < GradleVersion.version(GRADLE_VERSION_5)) {
-                p.task(TASK_TREE_TASK_NAME, type: TaskTreeTaskOld)
+            if (IS_GRADLE_MIN_50) {
+                createTask(p, TaskTreeTaskNew, TASK_TREE_TASK_NAME)
             } else {
-                p.task(TASK_TREE_TASK_NAME, type: TaskTreeTaskNew)
+                createTask(p, TaskTreeTaskOld, TASK_TREE_TASK_NAME)
             }
             p.gradle.taskGraph.whenReady {
                 if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTask }) {
@@ -46,6 +48,15 @@ class TaskTreePlugin implements Plugin<Project> {
     private void validateGradleVersion() {
         if (GradleVersion.current() < GradleVersion.version(GRADLE_MINIMUM_SUPPORTED_VERSION)) {
             throw new UnsupportedVersionException(UNSUPPORTED_GRADLE_VERSION_MESSAGE)
+        }
+    }
+
+    private static def createTask(Project project, Class type, String name) {
+        if (IS_GRADLE_MIN_49) {
+            // Lazy - avoids task configuration if not run
+            return project.tasks.register(name, type)
+        } else {
+            return project.tasks.create(name, type)
         }
     }
 
