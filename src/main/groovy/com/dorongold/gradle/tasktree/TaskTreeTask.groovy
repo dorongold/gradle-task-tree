@@ -41,7 +41,13 @@ abstract class TaskTreeTask extends AbstractReportTask {
             executionPlan = executionGraph.executionPlan
         }
         // Getting a private field is possible thanks to groovy not honoring the private modifier
-        Set entryTasks = executionPlan.entryTasks
+        Set entryTasks
+        // Gradle 6+
+        if (executionPlan.hasProperty('entryNodes')) {
+            entryTasks = executionPlan.entryNodes
+        } else {
+            entryTasks = executionPlan.entryTasks
+        }
         Set tasksOfCurrentProject = entryTasks.findAll { it.getTask().getProject() == project }
 
         // take advantage of gradle's dynamic nature and get the Style enum (which has different FQNs in different gradle versions)
