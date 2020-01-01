@@ -1,6 +1,6 @@
 # Gradle Task Tree
 
-[![version](https://img.shields.io/badge/version-1.4-orange.svg)](./CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-1.5-orange.svg)](./CHANGELOG.md)
 
 Gradle plugin that adds a `taskTree` task that prints task dependency tree report to the console.
 
@@ -22,7 +22,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.4"
+    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.5"
   }
 }
 
@@ -32,7 +32,7 @@ apply plugin: "com.dorongold.task-tree"
 ### Alternative Build Script Snippet (using the incubating "plugins" mechanism ):
 ```groovy
 plugins {
-    id "com.dorongold.task-tree" version "1.4"
+    id "com.dorongold.task-tree" version "1.5"
 }
 ```
 
@@ -46,7 +46,7 @@ initscript {
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
-	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.4"
+	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.5"
     }
 }
 rootProject {

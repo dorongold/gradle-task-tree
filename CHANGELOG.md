@@ -4,6 +4,9 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Version 1.5 (2020-01-01)
+----------------------------
+* Compatibility with gradle with gradle 6
 
 Version 1.4 (2019-06-01)
 ----------------------------
