@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 Version 1.5 (2020-01-01)
 ----------------------------
-* Compatibility with gradle with gradle 6
+* Compatibility with gradle 6
 
 Version 1.4 (2019-06-01)
 ----------------------------
