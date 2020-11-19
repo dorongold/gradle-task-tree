@@ -2,6 +2,7 @@ package com.dorongold.gradle.tasktree
 
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.diagnostics.AbstractReportTask
 import org.gradle.api.tasks.diagnostics.internal.ReportRenderer
 import org.gradle.api.tasks.diagnostics.internal.TextReportRenderer
@@ -16,6 +17,8 @@ import org.gradle.util.CollectionUtils
 abstract class TaskTreeTask extends AbstractReportTask {
     public TextReportRenderer renderer = new TextReportRenderer()
     protected boolean noRepeat = false
+    protected boolean showInputs = false
+    protected boolean showOutputs = false
     protected int taskDepth = Integer.MAX_VALUE
 
     @Override
@@ -75,7 +78,7 @@ abstract class TaskTreeTask extends AbstractReportTask {
 
         textOutput.println()
         textOutput.text("To see task dependency tree for a specific task, run ")
-        metaData.describeCommand(textOutput.withStyle(Style.UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--no-repeat] [--task-depth <depth>]"))
+        metaData.describeCommand(textOutput.withStyle(Style.UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--no-repeat] [--task-depth <depth>] [--show-inputs] [--show-outputs]"))
         textOutput.println()
 
         textOutput.text("Executions of all tasks except for ")
@@ -100,6 +103,13 @@ abstract class TaskTreeTask extends AbstractReportTask {
         return noRepeat
     }
 
+    boolean isShowInputs() {
+        return showInputs
+    }
+
+    boolean isShowOutputs() {
+        return showOutputs
+    }
 
     int getTaskDepth() {
         return taskDepth
@@ -133,6 +143,38 @@ abstract class TaskTreeTask extends AbstractReportTask {
                 styledTextOutput.text(" *")
             }
         }, lastChild)
+
+        if (showInputs) {
+            FileCollection inputFiles = entryTask.task.inputs.files
+
+            if (!inputFiles.isEmpty()) {
+                renderer.visit({
+                    it.text("${entryTask.task.path}:inputs.files")
+                }, lastChild)
+
+                inputFiles.each { inputFile ->
+                    renderer.visit({
+                        it.text("     ${inputFile}")
+                    }, lastChild)
+                }
+            }
+        }
+
+        if (showOutputs) {
+            FileCollection outputFiles = entryTask.task.outputs.files
+
+            if (!outputFiles.isEmpty()) {
+                renderer.visit({
+                    it.text("${entryTask.task.path}:outputs.files")
+                }, lastChild)
+
+                outputFiles.each {outputFile ->
+                    renderer.visit({
+                        it.text("     ${outputFile}")
+                    }, lastChild)
+                }
+            }
+        }
 
         if (skippingChildren) {
             // skip children because depth is exceeded
