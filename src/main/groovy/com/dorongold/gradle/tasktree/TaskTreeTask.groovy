@@ -118,6 +118,13 @@ abstract class TaskTreeTask extends AbstractReportTask {
             styledTextOutput.withStyle(isFirst ? Style.Identifier : Style.Normal)
             styledTextOutput.text(entryTask.task.path)
 
+            def currentGradleBuild = project.gradle
+            def refTask = entryTask.task
+            if (refTask.project.gradle != currentGradleBuild) {
+                styledTextOutput.withStyle(Style.Description)
+                styledTextOutput.text(" (included build '" + refTask.project.gradle.rootProject.name + "')")
+            }
+
             if (skippingChildren) {
                 styledTextOutput.text(" ..>")
             }
