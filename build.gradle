@@ -39,7 +39,7 @@ task createClasspathManifest {
 dependencies {
     compile localGroovy()
     compile gradleApi()
-    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'org.apache.commons:commons-lang3:3.5'
 
     testCompile gradleTestKit()
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
