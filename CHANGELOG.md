@@ -4,6 +4,13 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Version 2.0 (2021-07-01)
+----------------------------
+* Support Gradle 6.8 and make it the minimum supported Gradle version
+* Add options `--with-inputs` and `--with-outputs` to print task inputs and outputs
+* Change option `--task-depth` to `--depth`
+* Change default behavior to _not_ repeat an already printed sub-tree. Option `--no-repeat` replaced with `--repeat`.
+
 Version 1.5 (2020-01-01)
 ----------------------------
 * Compatibility with gradle 6

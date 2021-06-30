@@ -1,5 +1,8 @@
 package com.dorongold.gradle.tasktree
 
+
+import groovy.transform.TypeChecked
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -10,33 +13,31 @@ import org.gradle.util.GradleVersion
  * User: dorongold
  * Date: 16/09/15
  */
+
+@TypeChecked
 class TaskTreePlugin implements Plugin<Project> {
 
-    private static boolean IS_GRADLE_MIN_49 = GradleVersion.current().compareTo(GradleVersion.version('4.9-rc-1')) >= 0
-    private static boolean IS_GRADLE_MIN_50 = GradleVersion.current().compareTo(GradleVersion.version('5.0-milestone-1')) >= 0
-
     public static final String TASK_TREE_TASK_NAME = 'taskTree'
-    public static String GRADLE_MINIMUM_SUPPORTED_VERSION = '2.3'
+    public static String GRADLE_MINIMUM_SUPPORTED_VERSION = '6.8'
     public static String UNSUPPORTED_GRADLE_VERSION_MESSAGE =
-            "The taskTree task (defined by the task-tree plugin) cannot be run on a gradle version older than ${GRADLE_MINIMUM_SUPPORTED_VERSION}"
+            "Current version of task-tree plugin does not support Gradle versions older than ${GRADLE_MINIMUM_SUPPORTED_VERSION}." +
+                    "${System.lineSeparator()}" +
+                    "You can try using taks-tree version 1.5 which supports Gradle versions 2.3-6.7."
 
 
     void apply(Project project) {
-        project.allprojects { p ->
-            if (p.tasks.findByName(TASK_TREE_TASK_NAME)) {
+        project.allprojects { Project rootOrSubProject ->
+            if (rootOrSubProject.tasks.findByName(TASK_TREE_TASK_NAME)) {
                 // Skip if this sub-project already has our task. This can happen for example if the plugin is applied on allProjects.
                 return
             }
-            if (IS_GRADLE_MIN_50) {
-                createTask(p, TaskTreeTaskNew, TASK_TREE_TASK_NAME)
-            } else {
-                createTask(p, TaskTreeTaskOld, TASK_TREE_TASK_NAME)
-            }
-            p.gradle.taskGraph.whenReady {
-                if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTask }) {
-                    validateGradleVersion()
-                    p.tasks.each { Task task ->
-                        if (!(task in TaskTreeTask)) {
+            validateGradleVersion()
+            rootOrSubProject.tasks.register(TASK_TREE_TASK_NAME, TaskTreeTask)
+
+            rootOrSubProject.gradle.taskGraph.whenReady {
+                if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTaskBase }) {
+                    rootOrSubProject.tasks.configureEach { Task task ->
+                        if (!(task in TaskTreeTaskBase)) {
                             task.setEnabled(false)
                         }
                     }
@@ -48,15 +49,6 @@ class TaskTreePlugin implements Plugin<Project> {
     private void validateGradleVersion() {
         if (GradleVersion.current() < GradleVersion.version(GRADLE_MINIMUM_SUPPORTED_VERSION)) {
             throw new UnsupportedVersionException(UNSUPPORTED_GRADLE_VERSION_MESSAGE)
-        }
-    }
-
-    private static def createTask(Project project, Class type, String name) {
-        if (IS_GRADLE_MIN_49) {
-            // Lazy - avoids task configuration if not run
-            return project.tasks.register(name, type)
-        } else {
-            return project.tasks.create(name, type)
         }
     }
 

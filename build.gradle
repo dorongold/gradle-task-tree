@@ -1,26 +1,33 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: "com.gradle.plugin-publish"
-
-sourceCompatibility = 1.7
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'maven-publish'
+apply plugin: 'com.gradle.plugin-publish'
 
 buildscript {
     repositories {
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url 'https://plugins.gradle.org/m2/'
         }
     }
     dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.10.0"
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.15.0'
     }
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+
+
 group = 'com.dorongold.plugins'
-version = '1.5'
+version = '2.0'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
 //Building a text file that contains the classpath of the plugin code. needed for testing on gradle versions prior to 2.5
@@ -41,16 +48,17 @@ dependencies {
     compile gradleApi()
     compile 'org.apache.commons:commons-lang3:3.4'
 
-    testCompile gradleTestKit()
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude module: 'groovy-all'
     }
     testCompile 'com.netflix.nebula:nebula-test:5.0.1'
+    testCompile 'commons-io:commons-io:2.5'
     testRuntime files(createClasspathManifest)
 }
 
 pluginBundle {
     website = 'https://github.com/dorongold/gradle-task-tree'
+    vcsUrl = 'https://github.com/dorongold/gradle-task-tree.git'
     vcsUrl = 'https://github.com/dorongold/gradle-task-tree.git'
     description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
     tags = ['task', 'tree', 'dependencies', 'dependency']

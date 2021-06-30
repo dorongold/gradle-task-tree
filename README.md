@@ -1,6 +1,6 @@
 # Gradle Task Tree
 
-[![version](https://img.shields.io/badge/version-1.5-orange.svg)](./CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-2.0-orange.svg)](./CHANGELOG.md)
 
 Gradle plugin that adds a `taskTree` task that prints task dependency tree report to the console.
 
@@ -58,7 +58,7 @@ rootProject {
 
 `gradle <task 1>...<task N> taskTree`
 
-When one of the tasks given to the gradle command is `taskTree`, execution of all the other tasks on that line is skipped. Instead, their task dependency tree is printed.
+When one of the tasks given to the gradle command is `taskTree`, executions of all the other tasks given on that command are skipped. Instead, their task dependency tree is printed.
 
 ### Examples
 
@@ -123,23 +123,20 @@ No task dependencies
 ```
 
 ### Configuration
-When running the `taskTree` task from command-line, you can add the flag: `--no-repeat`.  
-This prevents sections of the tree from being printed more than once.  
-For a large task-tree it has the effect of reducing the size of output without loosing information.  
-To limit the depth of the printed tree add the command-line option: `--task-depth <number>`.
+To limit the depth of the printed tree, add the command-line option: `--depth <number>`  
+To print task inputs for each task in the tree, add the command-line option: `--with-inputs`  
+To print task outputs for each task in the tree, add the command-line option: `--with-outputs`  
+To allow a sub-tree of the same task to be repeated more than once, add the command-line option: `--repeat`
 
-You may add a configuration block for `taskTree` in your `build.gradle` (or, in case you take the [Init Script approach](#init-script-snippet), your `init.gradle`).
-In the configuration block you can set:
-- `noRepeat = true` has the same effect as passing `--no-repeat` to `taskTree` at command-line.
-- `impliesSubProjects = true`  in a multi-project, `taskTree` will print the task-tree of the current project only (the default is to print the task-tree of current *and* child projects). This can reduce the size of output.
-- `taskDepth = <number>` e.g: `taskDepth = 3` limits the depth of the printed tree.
-
+For a more static custom configuration, you can put the following in `build.gradle` (or, in case you take the [init script approach](#init-script-snippet), in `init.gradle`).
 ```groovy
-//optional configuration
-taskTree{
-    noRepeat = true  //do not print a sub-tree in the task-tree more than once
-    impliesSubProjects = true  //do not print task-tree for child projects in a multi-project
-    taskDepth = 3 // limit tree depth to 3. Equivalent to running with the --task-depth option.
+//optional configuration (per project)
+taskTree {
+    depth = 3 // limit tree depth to 3. Equivalent to the --depth CLI task option.
+    withInputs = true // prints task inputs in red just below the task in the tree. Equivalent to the --with-inputs CLI task option.
+    withOutputs = true // prints task inputs in red just below the task in the tree. Equivalent to the --with-outputs CLI task option.
+    repeat = true  // allows printing a sub-tree in the task-tree more than once. Equivalent to the --repeat CLI task option
+    impliesSubProjects = true  // disables printing task-tree for child projects in a multi-project
 }
 ```
 #### Note:
@@ -147,9 +144,9 @@ In a multi-project, it is recommended to apply the plugin on the root project on
 I.e. it is unnecessary to apply this plugin under `allprojects` or `subprojects`.
 
 ## Version Compatibility
-Gradle 2.3+  
-Java 1.7+
+Gradle 6.8+  
+Java 1.8+
 
-## Acknowledgements
+## Older Version Compatibility
+Version 1.5 of this plugin is compatible with Gradle 2.3+
 
-Some functionality is based on [gradle-visteg plugin](https://github.com/mmalohlava/gradle-visteg) - a plugin that creates an image with a DAG representation of the task tree.

@@ -25,7 +25,7 @@ class TaskTreeTaskTest extends Specification {
     public static final String GRADLE_ALL_VERSIONS_ENDPOINT = 'https://services.gradle.org/versions/all'
     //Earlier gradle versions do not support inspecting the build's text output when run in debug mode, using BuildResult.getOutput().
     public static final String GRADLE_MINIMUM_TESTED_VERSION = '2.9'
-    public static final List<String> SOME_GRADLE_VERSIONS_TO_TEST = ['2.14', '3.5', '4.10', '5.4']
+    public static final List<String> SOME_GRADLE_VERSIONS_TO_TEST = ['6.8', '7.1']
     @ClassRule
     @Shared
     TemporaryFolder testProjectDir = new TemporaryFolder()
@@ -54,7 +54,7 @@ class TaskTreeTaskTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments('build', 'taskTree')
+                .withArguments('build', 'taskTree', '--repeat')
                 .withGradleVersion(gradleVersion)
         // running in debug mode as a workaround to prevent gradle from spawning new gradle daemons  - which causes the build to fail on Travis CI
         // debug mode runs "embedded" gradle
@@ -63,7 +63,7 @@ class TaskTreeTaskTest extends Specification {
                 .build()
 
         then:
-        result.output.contains expectedOutput()
+        result.output.contains expectedOutputWithRepeat()
         if (GradleVersion.version(gradleVersion) > TestKitFeature.CAPTURE_BUILD_RESULT_TASKS.getSince()) {
             result.task(":taskTree").outcome == SUCCESS
             result.task(":build").outcome == SKIPPED
@@ -72,7 +72,7 @@ class TaskTreeTaskTest extends Specification {
         when:
         result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments('build', 'taskTree', '--no-repeat')
+                .withArguments('build', 'taskTree')
                 .withGradleVersion(gradleVersion)
         // running in debug mode as a workaround to prevent gradle from spawning new gradle daemons  - which causes the build to fail on Travis CI
         // debug mode runs "embedded" gradle
@@ -91,36 +91,6 @@ class TaskTreeTaskTest extends Specification {
         gradleVersion << testedGradleVersions
     }
 
-    def "test output of taskTree on the build task in gradle version 2.3"() {
-        setup:
-        println "--------------------- Testing gradle version 2.3 ---------------------"
-
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('build', 'taskTree')
-                .withGradleVersion('2.3')
-//                .forwardOutput()
-                .build()
-
-        then:
-        result.output.contains expectedOutput()
-    }
-
-    def "fail when running on gradle version older than 2.3"() {
-
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('build', 'taskTree')
-                .withGradleVersion('2.2')
-//                .forwardOutput()
-                .buildAndFail()
-
-        then:
-        result.output.contains(TaskTreePlugin.UNSUPPORTED_GRADLE_VERSION_MESSAGE)
-    }
-
     @UsesSample('multiproject/java/')
     def "test output of taskTree on a multi-project"() {
         setup:
@@ -129,7 +99,7 @@ class TaskTreeTaskTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(sampleProject.dir)
-                .withArguments('build', 'taskTree', '--no-repeat')
+                .withArguments('build', 'taskTree')
                 .withDebug(true)
 //                .forwardOutput()
                 .build()
@@ -142,7 +112,7 @@ class TaskTreeTaskTest extends Specification {
         when:
         result = GradleRunner.create()
                 .withProjectDir(sampleProject.dir)
-                .withArguments(':api:build', ':api:taskTree', '--no-repeat')
+                .withArguments(':api:build', ':api:taskTree')
                 .withDebug(true)
 //                .forwardOutput()
                 .build()
@@ -153,19 +123,17 @@ class TaskTreeTaskTest extends Specification {
         when:
         result = GradleRunner.create()
                 .withProjectDir(sampleProject.dir)
-                .withArguments(':services:personService:build', ':services:personService:taskTree', '--no-repeat')
+                .withArguments(':services:personService:build', ':services:personService:taskTree')
                 .withDebug(true)
-//                .forwardOutput()
+                .forwardOutput()
                 .build()
 
         then:
         result.output.contains expectedOutputProjectPersonService()
     }
 
-    static String expectedOutput() {
+    static String expectedOutputWithRepeat() {
         '''
-------------------------------------------------------------
-Root project
 ------------------------------------------------------------
 
 :build
@@ -191,8 +159,6 @@ Root project
     static String expectedOutputNoRepeat() {
         '''
 ------------------------------------------------------------
-Root project
-------------------------------------------------------------
 
 :build
 +--- :assemble
@@ -217,7 +183,7 @@ Root project
         def result = []
         result << '''
 ------------------------------------------------------------
-Root project
+Root project 'java'
 ------------------------------------------------------------
 
 
@@ -225,7 +191,7 @@ Root project
 '''.stripIndent()
         result << '''
 ------------------------------------------------------------
-Project :api
+Project ':api'
 ------------------------------------------------------------
 
 :api:build
@@ -253,7 +219,7 @@ Project :api
 '''.stripIndent()
         result << '''
 ------------------------------------------------------------
-Project :services
+Project ':services'
 ------------------------------------------------------------
 
 :services:build
@@ -275,7 +241,7 @@ Project :services
 '''.stripIndent()
         result << '''
 ------------------------------------------------------------
-Project :shared
+Project ':shared'
 ------------------------------------------------------------
 
 :shared:build
@@ -297,7 +263,7 @@ Project :shared
 '''.stripIndent()
         result << '''
 ------------------------------------------------------------
-Project :services:personService
+Project ':services:personService'
 ------------------------------------------------------------
 
 :services:personService:build
@@ -337,7 +303,7 @@ Project :services:personService
     static String expectedOutputProjectApi() {
         '''
 ------------------------------------------------------------
-Project :api
+Project ':api'
 ------------------------------------------------------------
 
 :api:build
@@ -368,7 +334,7 @@ Project :api
     static String expectedOutputProjectPersonService() {
         '''
 ------------------------------------------------------------
-Project :services:personService
+Project ':services:personService'
 ------------------------------------------------------------
 
 :services:personService:build
