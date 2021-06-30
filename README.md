@@ -15,24 +15,8 @@ The plugin is published on [Gradle Plugin Portal](https://plugins.gradle.org/plu
 ## Build Script Snippet
 
 ```groovy
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.5"
-  }
-}
-
-apply plugin: "com.dorongold.task-tree"
-```
-
-### Alternative Build Script Snippet (using the incubating "plugins" mechanism ):
-```groovy
 plugins {
-    id "com.dorongold.task-tree" version "1.5"
+    id "com.dorongold.task-tree" version "2.0"
 }
 ```
 
@@ -46,7 +30,7 @@ initscript {
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
-	classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.5"
+	classpath "gradle.plugin.com.dorongold.plugins:task-tree:2.0"
     }
 }
 rootProject {
