@@ -1,6 +1,6 @@
 # Gradle Task Tree
 
-[![version](https://img.shields.io/badge/version-2.0.1-orange.svg)](./CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-2.1.0-orange.svg)](./CHANGELOG.md)
 
 Gradle plugin that adds a `taskTree` task that prints task dependency tree report to the console.
 
@@ -16,7 +16,7 @@ The plugin is published on [Gradle Plugin Portal](https://plugins.gradle.org/plu
 
 ```groovy
 plugins {
-    id "com.dorongold.task-tree" version "2.0.1"
+    id "com.dorongold.task-tree" version "2.1.0"
 }
 ```
 
@@ -30,7 +30,7 @@ initscript {
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
-	classpath "gradle.plugin.com.dorongold.plugins:task-tree:2.0.1"
+	    classpath "com.dorongold.plugins:task-tree:2.1.0"
     }
 }
 rootProject {
@@ -115,7 +115,7 @@ To allow a sub-tree of the same task to be repeated more than once, add the comm
 For a more static custom configuration, you can put the following in `build.gradle` (or, in case you take the [init script approach](#init-script-snippet), in `init.gradle`).
 ```groovy
 //optional configuration (per project)
-taskTree {
+tasks.named('taskTree').configure {
     depth = 3 // limit tree depth to 3. Equivalent to the --depth CLI task option.
     withInputs = true // prints task inputs in red just below the task in the tree. Equivalent to the --with-inputs CLI task option.
     withOutputs = true // prints task inputs in red just below the task in the tree. Equivalent to the --with-outputs CLI task option.

@@ -27,7 +27,7 @@ java {
 
 
 group = 'com.dorongold.plugins'
-version = '2.0.1'
+version = '2.1.0'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
 //Building a text file that contains the classpath of the plugin code. needed for testing on gradle versions prior to 2.5

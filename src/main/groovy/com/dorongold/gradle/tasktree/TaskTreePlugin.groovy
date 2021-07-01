@@ -1,6 +1,5 @@
 package com.dorongold.gradle.tasktree
 
-
 import groovy.transform.TypeChecked
 
 import org.gradle.api.Plugin
@@ -26,27 +25,26 @@ class TaskTreePlugin implements Plugin<Project> {
 
 
     void apply(Project project) {
-        project.allprojects { Project rootOrSubProject ->
-            if (rootOrSubProject.tasks.findByName(TASK_TREE_TASK_NAME)) {
-                // Skip if this sub-project already has our task. This can happen for example if the plugin is applied on allProjects.
-                return
-            }
-            validateGradleVersion()
-            rootOrSubProject.tasks.register(TASK_TREE_TASK_NAME, TaskTreeTask)
+        validateGradleVersion()
 
-            rootOrSubProject.gradle.taskGraph.whenReady {
-                if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTaskBase }) {
-                    rootOrSubProject.tasks.configureEach { Task task ->
-                        if (!(task in TaskTreeTaskBase)) {
-                            task.setEnabled(false)
-                        }
+        project.subprojects { Project subproject ->
+            subproject.pluginManager.apply(TaskTreePlugin)
+        }
+
+        project.tasks.register(TASK_TREE_TASK_NAME, TaskTreeTask)
+
+        project.gradle.taskGraph.whenReady {
+            if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTaskBase }) {
+                project.tasks.configureEach { Task task ->
+                    if (!(task in TaskTreeTaskBase)) {
+                        task.setEnabled(false)
                     }
                 }
             }
         }
     }
 
-    private void validateGradleVersion() {
+    private static void validateGradleVersion() {
         if (GradleVersion.current() < GradleVersion.version(GRADLE_MINIMUM_SUPPORTED_VERSION)) {
             throw new UnsupportedVersionException(UNSUPPORTED_GRADLE_VERSION_MESSAGE)
         }
