@@ -134,3 +134,6 @@ Java 1.8+
 ## Older Version Compatibility
 Version 1.5 of this plugin is compatible with Gradle 2.3+
 
+## IntelliJ Plugin
+[reveal-dependency-plugin](https://github.com/jvmlet/reveal-dependency-plugin) can print the task dependency tree inside IntelliJ.
+
