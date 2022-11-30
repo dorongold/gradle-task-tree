@@ -130,7 +130,7 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
             }
 
             if (withDescription) {
-                prnitTaskDescription(graphRenderer, taskNode.task.description, "-> ", Description, Description)
+                printTaskDescription(graphRenderer, taskNode.task.description, "-> ", Description, Description)
             }
 
         }, lastChild)
@@ -147,7 +147,7 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
         }
     }
 
-    static void prnitTaskDescription(GraphRenderer graphRenderer, String description, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
+    static void printTaskDescription(GraphRenderer graphRenderer, String description, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
         graphRenderer.startChildren()
         graphRenderer.output.println()
         graphRenderer.output
