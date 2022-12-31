@@ -4,6 +4,10 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Version 2.1.1 (2022-12-31)
+----------------------------
+* Support Gradle 7.6
+
 Version 2.1.0 (2021-07-01)
 ----------------------------
 * Use [Task Configuration Avoidance](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html)
