@@ -24,8 +24,6 @@ java {
     }
 }
 
-
-
 group = 'com.dorongold.plugins'
 version = '2.1.0'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
@@ -44,16 +42,15 @@ task createClasspathManifest {
 }
 
 dependencies {
-    compile localGroovy()
-    compile gradleApi()
-    compile 'org.apache.commons:commons-lang3:3.5'
+    implementation localGroovy()
+    implementation 'org.apache.commons:commons-lang3:3.5'
 
-    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+    testImplementation('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude module: 'groovy-all'
     }
-    testCompile 'com.netflix.nebula:nebula-test:5.0.1'
-    testCompile 'commons-io:commons-io:2.5'
-    testRuntime files(createClasspathManifest)
+    testImplementation 'com.netflix.nebula:nebula-test:5.0.1'
+    testImplementation 'commons-io:commons-io:2.5'
+    testRuntimeOnly files(createClasspathManifest)
 }
 
 pluginBundle {

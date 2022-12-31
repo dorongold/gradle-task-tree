@@ -4,7 +4,6 @@ import com.dorongold.gradle.integtests.fixtures.Sample
 import com.dorongold.gradle.integtests.fixtures.UsesSample
 import groovy.json.JsonSlurper
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.internal.feature.TestKitFeature
 import org.gradle.util.GradleVersion
 import org.junit.ClassRule
 import org.junit.Rule
@@ -47,7 +46,37 @@ class TaskTreeTaskTest extends Specification {
     }
 
     @Unroll
-    def "test output of taskTree on the build task in gradle version #gradleVersion"() {
+    def "taskTree without repeat output on build task in gradle version #gradleVersion"() {
+        setup:
+        println "--------------------- Testing gradle version ${gradleVersion} ---------------------"
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('build', 'taskTree')
+                .withGradleVersion(gradleVersion)
+        // running in debug mode as a workaround to prevent gradle from spawning new gradle daemons  - which causes the build to fail on Travis CI
+        // debug mode runs "embedded" gradle
+                .withDebug(true)
+//                .forwardOutput()
+                .build()
+
+        then:
+        if (GradleVersion.version(gradleVersion) >= GradleVersion.version("7.6")) {
+            result.output.contains(expectedOutputNoRepeatAfter76())
+        } else {
+            result.output.contains expectedOutputNoRepeat()
+
+        }
+        result.task(":taskTree").outcome == SUCCESS
+        result.task(":build").outcome == SKIPPED
+
+        where:
+        gradleVersion << testedGradleVersions
+    }
+
+    @Unroll
+    def "taskTree with repeat output on build task in gradle version #gradleVersion"() {
         setup:
         println "--------------------- Testing gradle version ${gradleVersion} ---------------------"
 
@@ -63,29 +92,13 @@ class TaskTreeTaskTest extends Specification {
                 .build()
 
         then:
-        result.output.contains expectedOutputWithRepeat()
-        if (GradleVersion.version(gradleVersion) > TestKitFeature.CAPTURE_BUILD_RESULT_TASKS.getSince()) {
-            result.task(":taskTree").outcome == SUCCESS
-            result.task(":build").outcome == SKIPPED
+        if (GradleVersion.version(gradleVersion) >= GradleVersion.version("7.6")) {
+            result.output.contains expectedOutputWithRepeatAfter76()
+        } else {
+            result.output.contains expectedOutputWithRepeat()
         }
-
-        when:
-        result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('build', 'taskTree')
-                .withGradleVersion(gradleVersion)
-        // running in debug mode as a workaround to prevent gradle from spawning new gradle daemons  - which causes the build to fail on Travis CI
-        // debug mode runs "embedded" gradle
-                .withDebug(true)
-//                .forwardOutput()
-                .build()
-
-        then:
-        result.output.contains expectedOutputNoRepeat()
-        if (GradleVersion.version(gradleVersion) > TestKitFeature.CAPTURE_BUILD_RESULT_TASKS.getSince()) {
-            result.task(":taskTree").outcome == SUCCESS
-            result.task(":build").outcome == SKIPPED
-        }
+        result.task(":taskTree").outcome == SUCCESS
+        result.task(":build").outcome == SKIPPED
 
         where:
         gradleVersion << testedGradleVersions
@@ -156,6 +169,38 @@ class TaskTreeTaskTest extends Specification {
 '''.stripIndent()
     }
 
+    static String expectedOutputWithRepeatAfter76() {
+        '''
+------------------------------------------------------------
+
+:build
++--- :assemble
+|    \\--- :jar
+|         +--- :classes
+|         |    +--- :compileJava
+|         |    \\--- :processResources
+|         \\--- :compileJava
+\\--- :check
+     \\--- :test
+          +--- :classes
+          |    +--- :compileJava
+          |    \\--- :processResources
+          +--- :compileJava
+          +--- :compileTestJava
+          |    +--- :classes
+          |    |    +--- :compileJava
+          |    |    \\--- :processResources
+          |    \\--- :compileJava
+          \\--- :testClasses
+               +--- :compileTestJava
+               |    +--- :classes
+               |    |    +--- :compileJava
+               |    |    \\--- :processResources
+               |    \\--- :compileJava
+               \\--- :processTestResources
+'''.stripIndent()
+    }
+
     static String expectedOutputNoRepeat() {
         '''
 ------------------------------------------------------------
@@ -173,6 +218,34 @@ class TaskTreeTaskTest extends Specification {
                +--- :compileTestJava
                |    \\--- :classes *
                \\--- :processTestResources
+
+
+(*) - subtree omitted (printed previously)
+'''.stripIndent()
+    }
+
+    static String expectedOutputNoRepeatAfter76() {
+        '''
+------------------------------------------------------------
+
+:build
++--- :assemble
+|    \\--- :jar
+|         +--- :classes
+|         |    +--- :compileJava
+|         |    \\--- :processResources
+|         \\--- :compileJava *
+\\--- :check
+     \\--- :test
+          +--- :classes *
+          +--- :compileJava *
+          +--- :compileTestJava
+          |    +--- :classes *
+          |    \\--- :compileJava *
+          \\--- :testClasses
+               +--- :compileTestJava *
+               \\--- :processTestResources
+
 
 
 (*) - subtree omitted (printed previously)
