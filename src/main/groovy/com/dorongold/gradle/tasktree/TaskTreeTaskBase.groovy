@@ -15,6 +15,7 @@ import org.gradle.initialization.BuildClientMetaData
 import org.gradle.internal.graph.GraphRenderer
 import org.gradle.internal.logging.text.StyledTextOutput
 import org.gradle.util.CollectionUtils
+import utils.GradleUtils
 
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Description
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Failure
@@ -65,7 +66,7 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
 
         TaskExecutionGraph executionGraph = project.gradle.taskGraph
         // Getting a private field is possible thanks to groovy not honoring the private modifier
-        DefaultExecutionPlan executionPlan = executionGraph.executionPlan
+        DefaultExecutionPlan executionPlan = getExecutionPlan(executionGraph)
         Set<Node> tasksOfCurrentProject = executionPlan.entryNodes.findAll {
             it.getTask().getProject() == project
         }
@@ -202,10 +203,17 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
         textOutput.println()
     }
 
-    private static void printNoTaskDependencies(StyledTextOutput textOutput) {
+    static void printNoTaskDependencies(StyledTextOutput textOutput) {
         textOutput.withStyle(Info).text("No task dependencies")
         textOutput.println()
 
     }
 
+    static DefaultExecutionPlan getExecutionPlan(TaskExecutionGraph taskExecutionGraph) {
+        if (GradleUtils.IS_GRADLE_MIN_7_6) {
+            return taskExecutionGraph.executionPlan.contents
+        } else {
+            return taskExecutionGraph.executionPlan
+        }
+    }
 }
