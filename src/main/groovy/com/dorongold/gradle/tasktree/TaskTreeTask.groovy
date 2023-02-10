@@ -20,6 +20,11 @@ class TaskTreeTask extends TaskTreeTaskBase {
         super.withOutputs = withOutputs
     }
 
+    @Option(option = "with-description", description = "print task description in orange just below task in graph")
+    void setWithDescription(boolean withDescription) {
+        super.withDescription = withDescription
+    }
+
     @Option(option = "depth", description = "descend at most <depth> levels into each task dependency")
     void setDepth(String depth) {
         super.depth = depth.toInteger()

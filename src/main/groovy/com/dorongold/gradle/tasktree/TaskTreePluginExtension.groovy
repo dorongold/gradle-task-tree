@@ -10,5 +10,7 @@ interface TaskTreePluginExtension {
 
     Property<Boolean> getWithOutputs()
 
+    Property<Boolean> getWithDescription()
+
     Property<Integer> getDepth()
 }
