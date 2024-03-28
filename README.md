@@ -114,13 +114,13 @@ To allow a sub-tree of the same task to be repeated more than once, add the comm
 
 For a more static custom configuration, you can put the following in `build.gradle` (or, in case you take the [init script approach](#init-script-snippet), in `init.gradle`).
 ```groovy
-//optional configuration (per project)
+// optional configuration (per project)
 tasks.named('taskTree').configure {
     depth = 3 // limit tree depth to 3. Equivalent to the --depth CLI task option.
     withInputs = true // prints task inputs in red just below the task in the tree. Equivalent to the --with-inputs CLI task option.
-    withOutputs = true // prints task inputs in red just below the task in the tree. Equivalent to the --with-outputs CLI task option.
-    repeat = true  // allows printing a sub-tree in the task-tree more than once. Equivalent to the --repeat CLI task option
-    impliesSubProjects = true  // disables printing task-tree for child projects in a multi-project
+    withOutputs = true // prints task outputs in green just below the task in the tree. Equivalent to the --with-outputs CLI task option.
+    repeat = true // allows printing a sub-tree in the task-tree more than once. Equivalent to the --repeat CLI task option
+    impliesSubProjects = true // disables printing task-tree for child projects in a multi-project
 }
 ```
 #### Note:
