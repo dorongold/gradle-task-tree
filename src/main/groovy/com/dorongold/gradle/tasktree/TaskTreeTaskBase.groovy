@@ -121,16 +121,16 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
                 styledTextOutput.text(" *")
             }
 
+            if (withDescription && taskNode.task.description) {
+                printTaskDescription(graphRenderer, taskNode.task.description, Description)
+            }
+
             if (withInputs) {
                 printTaskFiles(graphRenderer, taskNode.task.inputs.files, "<- ", FailureHeader, Failure)
             }
 
             if (withOutputs) {
                 printTaskFiles(graphRenderer, taskNode.task.outputs.files, "-> ", SuccessHeader, Success)
-            }
-
-            if (withDescription) {
-                printTaskDescription(graphRenderer, taskNode.task.description, "-> ", Description, Description)
             }
 
         }, lastChild)
@@ -147,19 +147,10 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
         }
     }
 
-    static void printTaskDescription(GraphRenderer graphRenderer, String description, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
-        graphRenderer.startChildren()
-        graphRenderer.output.println()
-        graphRenderer.output
-                .withStyle(Info)
-                .text(graphRenderer.prefix)
-        graphRenderer.output
-                .withStyle(prefixStyle)
-                .text(" " * 5 + "${prefix} ")
+    static void printTaskDescription(GraphRenderer graphRenderer, String description, StyledTextOutput.Style textStyle) {
         graphRenderer.output
                 .withStyle(textStyle)
-                .text(description)
-        graphRenderer.completeChildren()
+                .text(" - " + description)
     }
 
     static void printTaskFiles(GraphRenderer graphRenderer, FileCollection files, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
@@ -207,12 +198,7 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
             textOutput.withStyle(SuccessHeader).println(" ->")
         }
 
-        if (withDescription) {
-            textOutput.text("Task description is shown in green and prefixed with")
-            textOutput.withStyle(SuccessHeader).println(" ->")
-        }
-
-        if (withInputs || withOutputs || withDescription) {
+        if (withInputs || withOutputs) {
             textOutput.println()
         }
 
