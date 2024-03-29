@@ -45,6 +45,9 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
     boolean withOutputs = false
 
     @Internal
+    boolean withDescription = false
+
+    @Internal
     int depth = Integer.MAX_VALUE
 
     @Internal
@@ -126,6 +129,10 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
                 printTaskFiles(graphRenderer, taskNode.task.outputs.files, "-> ", SuccessHeader, Success)
             }
 
+            if (withDescription) {
+                printTaskDescription(graphRenderer, taskNode.task.description, "-> ", Description, Description)
+            }
+
         }, lastChild)
 
         if (skippingChildren) {
@@ -138,6 +145,21 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
             }
             graphRenderer.completeChildren()
         }
+    }
+
+    static void printTaskDescription(GraphRenderer graphRenderer, String description, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
+        graphRenderer.startChildren()
+        graphRenderer.output.println()
+        graphRenderer.output
+                .withStyle(Info)
+                .text(graphRenderer.prefix)
+        graphRenderer.output
+                .withStyle(prefixStyle)
+                .text(" " * 5 + "${prefix} ")
+        graphRenderer.output
+                .withStyle(textStyle)
+                .text(description)
+        graphRenderer.completeChildren()
     }
 
     static void printTaskFiles(GraphRenderer graphRenderer, FileCollection files, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
@@ -185,12 +207,17 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
             textOutput.withStyle(SuccessHeader).println(" ->")
         }
 
-        if (withInputs || withOutputs) {
+        if (withDescription) {
+            textOutput.text("Task description is shown in green and prefixed with")
+            textOutput.withStyle(SuccessHeader).println(" ->")
+        }
+
+        if (withInputs || withOutputs || withDescription) {
             textOutput.println()
         }
 
         textOutput.text("To see task dependency tree for a specific task, run ")
-        metaData.describeCommand(textOutput.withStyle(UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--depth <depth>] [--with-inputs] [--with-outputs] [--repeat]"))
+        metaData.describeCommand(textOutput.withStyle(UserInput), String.format("<project-path>:<task> <project-path>:taskTree [--depth <depth>] [--with-inputs] [--with-outputs] [--with-description] [--repeat]"))
         textOutput.println()
 
         textOutput.text("Executions of all tasks except for ")
