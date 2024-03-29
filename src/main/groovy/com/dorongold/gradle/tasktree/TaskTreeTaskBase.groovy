@@ -95,11 +95,13 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
                              final StyledTextOutput textOutput, boolean isFirst, Set<Node> rendered, int depth) {
 
         final boolean taskSubtreeAlreadyPrinted = !rendered.add(taskNode)
+
         final Set<Node> children = (taskNode.dependencySuccessors).findAll {
             it.hasProperty('task')
         }
-        final boolean hasChildren = !children.isEmpty()
-        final boolean skippingChildren = hasChildren && depth > this.depth
+
+        final boolean skipBecauseDepthReached = !children.isEmpty() && depth > this.depth
+        final boolean skipBecauseAlreadyVisited = !repeat && taskSubtreeAlreadyPrinted
 
         graphRenderer.visit({ StyledTextOutput styledTextOutput ->
             // print task name
@@ -113,29 +115,31 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
                         .text(" (included build '" + refTask.project.gradle.rootProject.name + "')")
             }
 
-            if (skippingChildren) {
-                styledTextOutput.text(" ...")
-            }
-
-            if (!repeat && taskSubtreeAlreadyPrinted) {
+            if (skipBecauseAlreadyVisited) {
                 styledTextOutput.text(" *")
             }
 
-            if (withDescription && taskNode.task.description) {
-                printTaskDescription(graphRenderer, taskNode.task.description, Description)
+            if (skipBecauseDepthReached) {
+                styledTextOutput.text(" ...")
             }
 
-            if (withInputs) {
-                printTaskFiles(graphRenderer, taskNode.task.inputs.files, "<- ", FailureHeader, Failure)
-            }
+            if (!skipBecauseAlreadyVisited && !skipBecauseDepthReached) {
+                if (withDescription && taskNode.task.description) {
+                    printTaskDescription(graphRenderer, taskNode.task.description, Description)
+                }
 
-            if (withOutputs) {
-                printTaskFiles(graphRenderer, taskNode.task.outputs.files, "-> ", SuccessHeader, Success)
+                if (withInputs) {
+                    printTaskFiles(graphRenderer, taskNode.task.inputs.files, "<- ", FailureHeader, Failure)
+                }
+
+                if (withOutputs) {
+                    printTaskFiles(graphRenderer, taskNode.task.outputs.files, "-> ", SuccessHeader, Success)
+                }
             }
 
         }, lastChild)
 
-        if (skippingChildren) {
+        if (skipBecauseDepthReached) {
             // skip children because depth is exceeded
         } else if (repeat || !taskSubtreeAlreadyPrinted) {
             // print children tasks
