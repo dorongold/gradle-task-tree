@@ -10,7 +10,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.15.0'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.21.0'
     }
 }
 
@@ -25,7 +25,7 @@ java {
 }
 
 group = 'com.dorongold.plugins'
-version = '2.1.1'
+version = '3.0.0'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
 //Building a text file that contains the classpath of the plugin code. needed for testing on gradle versions prior to 2.5

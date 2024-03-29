@@ -4,6 +4,11 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Version 3.0.0 (2024-03-29)
+----------------------------
+* Add option `--with-description` to print task descriptions
+* Omit inputs, outputs and task descriptions for repeated tree nodes
+
 Version 2.1.1 (2022-12-31)
 ----------------------------
 * Support Gradle 7.6
