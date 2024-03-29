@@ -1,10 +1,10 @@
 package com.dorongold.gradle.tasktree
 
 import groovy.transform.TypeChecked
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.plugins.HelpTasksPlugin
 import org.gradle.tooling.UnsupportedVersionException
 import org.gradle.util.GradleVersion
 
@@ -31,7 +31,10 @@ class TaskTreePlugin implements Plugin<Project> {
             subproject.pluginManager.apply(TaskTreePlugin)
         }
 
-        project.tasks.register(TASK_TREE_TASK_NAME, TaskTreeTask)
+        project.tasks.register(TASK_TREE_TASK_NAME, TaskTreeTask) {
+            it.description = 'Prints task dependency tree.'
+            it.group = HelpTasksPlugin.HELP_GROUP
+        }
 
         project.gradle.taskGraph.whenReady {
             if (project.gradle.taskGraph.allTasks.any { Task task -> task.class in TaskTreeTaskBase }) {
