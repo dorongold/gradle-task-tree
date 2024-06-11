@@ -130,11 +130,12 @@ In a multi-project, it is recommended to apply the plugin on the root project on
 I.e. it is unnecessary to apply this plugin under `allprojects` or `subprojects`.
 
 ## Version Compatibility
-Gradle 6.8+  
+Gradle 7.6+
 Java 1.8+
 
 ## Older Version Compatibility
-Version 1.5 of this plugin is compatible with Gradle 2.3+
+Version 3.0.0 of this plugin is compatible with Gradle 6.8 - 7.5.1
+Version 1.5 of this plugin is compatible with Gradle 2.3 - 6.7.1
 
 ## IntelliJ Plugin
 [reveal-dependency-plugin](https://github.com/jvmlet/reveal-dependency-plugin) can print the task dependency tree inside IntelliJ.

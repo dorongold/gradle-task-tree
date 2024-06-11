@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'com.dorongold.task-tree'
+}
+
+subprojects {
+    apply plugin: 'java'
+    group = 'org.gradle.sample'
+    version = '1.0'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        testImplementation 'junit:junit:4.13.2'
+    }
+}
+
+project(':api') {
+    dependencies {
+        implementation project(':shared')
+    }
+}
+
+project(':services:personService') {
+    dependencies {
+        implementation project(':shared'), project(':api')
+    }
+}
+
+tasks.register('dependsOnIncluded') {
+    dependsOn gradle.includedBuild('includedProject').task(':taskInIncludedProject'), tasks.named('assemble')
+}
+

@@ -1,38 +1,30 @@
 package com.dorongold.gradle.tasktree
 
+import groovy.transform.Canonical
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.Immutable
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.execution.TaskExecutionGraph
-import org.gradle.api.file.FileCollection
-import org.gradle.api.invocation.Gradle
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.diagnostics.ProjectBasedReportTask
-import org.gradle.api.tasks.diagnostics.internal.ReportRenderer
+import org.gradle.api.tasks.diagnostics.AbstractProjectBasedReportTask
+import org.gradle.api.tasks.diagnostics.internal.ProjectDetails
 import org.gradle.api.tasks.diagnostics.internal.TextReportRenderer
 import org.gradle.execution.plan.DefaultExecutionPlan
 import org.gradle.execution.plan.Node
 import org.gradle.initialization.BuildClientMetaData
 import org.gradle.internal.graph.GraphRenderer
 import org.gradle.internal.logging.text.StyledTextOutput
-import org.gradle.util.CollectionUtils
-import utils.GradleUtils
+import utils.TaskGraphUtils
 
-import static org.gradle.internal.logging.text.StyledTextOutput.Style.Description
-import static org.gradle.internal.logging.text.StyledTextOutput.Style.Failure
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.FailureHeader
-import static org.gradle.internal.logging.text.StyledTextOutput.Style.Identifier
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Info
-import static org.gradle.internal.logging.text.StyledTextOutput.Style.Normal
-import static org.gradle.internal.logging.text.StyledTextOutput.Style.Success
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.SuccessHeader
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.UserInput
 
 /**
  * User: dorongold
- * Date: 10/09/15
- */
+ * Date: 10/09/15*/
 
-abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
+abstract class TaskTreeTaskBase extends AbstractProjectBasedReportTask<TaskReportModel> {
     public TextReportRenderer renderer = new TextReportRenderer()
 
     @Internal
@@ -54,131 +46,104 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
     GraphRenderer graphRenderer
 
     @Override
-    protected ReportRenderer getRenderer() {
+    protected TextReportRenderer getRenderer() {
         return renderer
     }
 
+    @Immutable
+    static final class TaskReportModel {
+        Set<TaskDetails> tasks
+    }
+
+    @Canonical
+    @EqualsAndHashCode(includes = ['path'])
+    static final class TaskDetails {
+        String path
+        String description
+        List<String> fileInputs
+        List<String> fileOutputs
+
+        Collection<TaskDetails> children
+    }
+
     @Override
-    protected void generate(final Project project) throws IOException {
+    TaskReportModel calculateReportModelFor(final Project project) throws IOException {
+        DefaultExecutionPlan executionPlan = project.gradle.taskGraph.executionPlan.contents
 
-        BuildClientMetaData metaData = getClientMetaData()
-
-        // textOutput is injected and set into renderer by the parent abstract class before this method is called
-        StyledTextOutput textOutput = (getRenderer() as TextReportRenderer).textOutput
-        graphRenderer = new GraphRenderer(textOutput)
-
-        TaskExecutionGraph executionGraph = project.gradle.taskGraph
-        // Getting a private field is possible thanks to groovy not honoring the private modifier
-        DefaultExecutionPlan executionPlan = getExecutionPlan(executionGraph)
-        Set<Node> tasksOfCurrentProject = executionPlan.entryNodes.findAll {
-            it.getTask().getProject() == project
+        Set<Node> nodesOfCurrentProject = executionPlan.entryNodes.findAll {
+            project == it.task.project
         }
 
-        tasksOfCurrentProject.findAll {
-            !(it.task.class in TaskTreeTaskBase)
-        }.findAll {
-            it.hasProperty('task')
-        }.each {
-            renderTreeRecursive(it, true, textOutput, true, new HashSet<Node>(), 1)
-            if (it.dependencySuccessors.isEmpty()) {
+        Set<Node> taskNodes = TaskGraphUtils.findRealTaskNodes(nodesOfCurrentProject)
+
+        return new TaskReportModel(taskNodes.collect {
+            TaskGraphUtils.visitRecursively(it, this::buildTaskDetails)
+        } as Set<TaskDetails>)
+    }
+
+    TaskDetails buildTaskDetails(Node taskNode, Collection<TaskDetails> children) {
+        TaskDetails taskDetails = buildTaskDetails(taskNode)
+        taskDetails.children = children
+        return taskDetails
+    }
+
+    TaskDetails buildTaskDetails(Node taskNode) {
+        String path = taskNode.task.getIdentityPath() as String
+        String description = taskNode.task.description as String
+        List<String> inputs = taskNode.task.inputs.files as List<String>
+        List<String> outputs = taskNode.task.outputs.files as List<String>
+        return new TaskDetails(path,
+                description,
+                inputs,
+                outputs)
+    }
+
+    @Override
+    void generateReportFor(ProjectDetails project, TaskReportModel model) {
+        renderTaskTree(model)
+        getRenderer().textOutput.println()
+        renderHelp()
+    }
+
+    void renderTaskTree(TaskReportModel model) {
+        StyledTextOutput textOutput = getRenderer().textOutput
+        graphRenderer = new GraphRenderer(textOutput)
+
+        model.tasks.each { TaskDetails taskDetails ->
+            renderTreeRecursive(taskDetails, true, textOutput, true, new HashSet<TaskDetails>(), 1)
+            if (!taskDetails.children) {
                 printNoTaskDependencies(textOutput)
             }
             textOutput.println()
         }
-
-        textOutput.println()
-        printLegendAndFootNotes(textOutput, metaData, project)
     }
 
+    void renderTreeRecursive(TaskDetails taskDetails, boolean lastChild,
+                             final StyledTextOutput textOutput, boolean isFirst, Set<TaskDetails> rendered, int depth) {
 
-    void renderTreeRecursive(Node taskNode, boolean lastChild,
-                             final StyledTextOutput textOutput, boolean isFirst, Set<Node> rendered, int depth) {
-
-        final boolean taskSubtreeAlreadyPrinted = !rendered.add(taskNode)
-
-        final Set<Node> children = (taskNode.dependencySuccessors).findAll {
-            it.hasProperty('task')
-        }
-
-        final boolean skipBecauseDepthReached = !children.isEmpty() && depth > this.depth
+        final boolean taskSubtreeAlreadyPrinted = !rendered.add(taskDetails)
+        final boolean skipBecauseDepthReached = taskDetails.children && depth > this.depth
         final boolean skipBecauseAlreadyVisited = !repeat && taskSubtreeAlreadyPrinted
 
-        graphRenderer.visit({ StyledTextOutput styledTextOutput ->
-            // print task name
-            styledTextOutput.withStyle(isFirst ? Identifier : Normal)
-                    .text(taskNode.task.path)
-
-            Gradle currentGradleBuild = project.gradle
-            Task refTask = taskNode.task
-            if (refTask.project.gradle != currentGradleBuild) {
-                styledTextOutput.withStyle(Description)
-                        .text(" (included build '" + refTask.project.gradle.rootProject.name + "')")
-            }
-
-            if (skipBecauseAlreadyVisited) {
-                styledTextOutput.text(" *")
-            }
-
-            if (skipBecauseDepthReached) {
-                styledTextOutput.text(" ...")
-            }
-
-            if (!skipBecauseAlreadyVisited && !skipBecauseDepthReached) {
-                if (withDescription && taskNode.task.description) {
-                    printTaskDescription(graphRenderer, taskNode.task.description, Description)
-                }
-
-                if (withInputs) {
-                    printTaskFiles(graphRenderer, taskNode.task.inputs.files, "<- ", FailureHeader, Failure)
-                }
-
-                if (withOutputs) {
-                    printTaskFiles(graphRenderer, taskNode.task.outputs.files, "-> ", SuccessHeader, Success)
-                }
-            }
-
-        }, lastChild)
+        graphRenderer.visit(new NodeAction(graphRenderer, isFirst, taskDetails, skipBecauseAlreadyVisited, skipBecauseDepthReached, withInputs, withOutputs, withDescription),
+                lastChild)
 
         if (skipBecauseDepthReached) {
             // skip children because depth is exceeded
         } else if (repeat || !taskSubtreeAlreadyPrinted) {
             // print children tasks
             graphRenderer.startChildren()
-            children.eachWithIndex { Node child, int i ->
-                this.renderTreeRecursive(child, i == children.size() - 1, textOutput, false, rendered, depth + 1)
+            taskDetails.children.eachWithIndex { TaskDetails child, int i ->
+                this.renderTreeRecursive(child, i == taskDetails.children.size() - 1, textOutput, false, rendered, depth + 1)
             }
             graphRenderer.completeChildren()
         }
     }
 
-    static void printTaskDescription(GraphRenderer graphRenderer, String description, StyledTextOutput.Style textStyle) {
-        graphRenderer.output
-                .withStyle(textStyle)
-                .text(" - " + description)
-    }
+    private void renderHelp() {
+        BuildClientMetaData metaData = getClientMetaData()
+        StyledTextOutput textOutput = getRenderer().getTextOutput()
 
-    static void printTaskFiles(GraphRenderer graphRenderer, FileCollection files, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
-        graphRenderer.startChildren()
-        files.eachWithIndex { File file, int i ->
-            graphRenderer.output.println()
-            graphRenderer.output
-                    .withStyle(Info)
-                    .text(graphRenderer.prefix)
-            graphRenderer.output
-                    .withStyle(prefixStyle)
-                    .text(" " * 5 + "${prefix} ")
-            graphRenderer.output
-                    .withStyle(textStyle)
-                    .text(file)
-        }
-        graphRenderer.completeChildren()
-    }
-
-    private static List<Project> getChildren(Project project) {
-        return CollectionUtils.sort(project.childProjects.values())
-    }
-
-    private void printLegendAndFootNotes(StyledTextOutput textOutput, BuildClientMetaData metaData, Project project) {
         if (!repeat) {
             textOutput.println("(*) - subtree omitted (printed previously)")
                     .text("Add ")
@@ -188,7 +153,7 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
         }
 
         if (depth < Integer.MAX_VALUE) {
-            textOutput.println("(...) - subtree omitted (exceeds task-depth)")
+            textOutput.println("(...) - subtree omitted (exceeds depth)")
             textOutput.println()
         }
 
@@ -213,11 +178,6 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
         textOutput.text("Executions of all tasks except for ")
         textOutput.withStyle(UserInput).text('taskTree')
         textOutput.println(" are skipped. They are used for building the task graph only.")
-
-        textOutput.text("For example, try running ")
-        Project exampleProject = project.getChildProjects().isEmpty() ? project : getChildren(project).get(0)
-        metaData.describeCommand(textOutput.withStyle(UserInput), exampleProject.absoluteProjectPath('build'), exampleProject.absoluteProjectPath('taskTree'))
-        textOutput.println()
     }
 
     static void printNoTaskDependencies(StyledTextOutput textOutput) {
@@ -226,11 +186,4 @@ abstract class TaskTreeTaskBase extends ProjectBasedReportTask {
 
     }
 
-    static DefaultExecutionPlan getExecutionPlan(TaskExecutionGraph taskExecutionGraph) {
-        if (GradleUtils.IS_GRADLE_MIN_7_6) {
-            return taskExecutionGraph.executionPlan.contents
-        } else {
-            return taskExecutionGraph.executionPlan
-        }
-    }
 }
