@@ -134,7 +134,7 @@ Gradle 7.6+
 Java 1.8+
 
 ## Older Version Compatibility
-Version 4.0.0 of this plugin is compatible with Gradle 6.8 - 7.5.1  
+Version 3.0.0 of this plugin is compatible with Gradle 6.8 - 7.5.1  
 Version 1.5 of this plugin is compatible with Gradle 2.3 - 6.7.1
 
 ## IntelliJ Plugin
