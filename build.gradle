@@ -1,17 +1,6 @@
-apply plugin: 'groovy'
-apply plugin: 'java-gradle-plugin'
-apply plugin: 'maven-publish'
-apply plugin: 'com.gradle.plugin-publish'
-
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.21.0'
-    }
+plugins {
+    id 'com.gradle.plugin-publish' version '1.2.1'
+    id 'groovy'
 }
 
 repositories {
@@ -25,52 +14,45 @@ java {
 }
 
 group = 'com.dorongold.plugins'
-version = '3.0.0'
+version = '4.0.0'
 description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
 
-//Building a text file that contains the classpath of the plugin code. needed for testing on gradle versions prior to 2.5
-task createClasspathManifest {
-    def outputDir = file("$buildDir/$name")
-
-    inputs.files sourceSets.main.runtimeClasspath
-    outputs.dir outputDir
-
-    doLast {
-        outputDir.mkdirs()
-        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
-    }
-}
-
 dependencies {
-    implementation localGroovy()
-    implementation 'org.apache.commons:commons-lang3:3.5'
+    // mandatory dependencies for using Spock
+    implementation platform('org.codehaus.groovy:groovy-bom:3.0.21')
+    implementation 'org.codehaus.groovy:groovy'
 
-    testImplementation('org.spockframework:spock-core:1.0-groovy-2.4') {
-        exclude module: 'groovy-all'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+
+    testImplementation platform("org.spockframework:spock-bom:2.3-groovy-3.0") {
+        exclude group: 'org.codehaus.groovy'
     }
-    testImplementation 'com.netflix.nebula:nebula-test:5.0.1'
-    testImplementation 'commons-io:commons-io:2.5'
-    testRuntimeOnly files(createClasspathManifest)
+    testImplementation "org.spockframework:spock-core"
+    testImplementation "org.spockframework:spock-junit4"  // you can remove this if your code does not rely on old JUnit 4 rules
+    testImplementation 'com.netflix.nebula:nebula-test:10.6.1'
+    testImplementation 'commons-io:commons-io:2.16.1'
 }
 
-pluginBundle {
+gradlePlugin {
     website = 'https://github.com/dorongold/gradle-task-tree'
     vcsUrl = 'https://github.com/dorongold/gradle-task-tree.git'
-    vcsUrl = 'https://github.com/dorongold/gradle-task-tree.git'
-    description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
-    tags = ['task', 'tree', 'dependencies', 'dependency']
 
     plugins {
         taskTreePlugin {
             id = 'com.dorongold.task-tree'
             displayName = 'Gradle Task Tree Plugin'
+            description = "Gradle plugin that adds a 'taskTree' task that prints task dependency tree"
+            tags.addAll('task', 'tree', 'dependencies', 'dependency')
+            implementationClass = 'com.dorongold.gradle.tasktree.TaskTreePlugin'
         }
     }
 }
 
 test {
+    useJUnitPlatform()
     testLogging {
 //        showStandardStreams = true
+        events "passed", "skipped", "failed"
         exceptionFormat = 'full'
     }
 }

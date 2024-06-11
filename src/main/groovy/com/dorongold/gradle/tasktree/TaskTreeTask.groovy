@@ -2,7 +2,9 @@ package com.dorongold.gradle.tasktree
 
 
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "Not worth caching")
 class TaskTreeTask extends TaskTreeTaskBase {
 
     @Option(option = "repeat", description = "allow printing same subtree more than once")

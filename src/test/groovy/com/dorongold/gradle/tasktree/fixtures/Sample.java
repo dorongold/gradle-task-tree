@@ -1,4 +1,4 @@
-package com.dorongold.gradle.integtests.fixtures;
+package com.dorongold.gradle.tasktree.fixtures;
 
 import static org.junit.Assert.assertTrue;
 

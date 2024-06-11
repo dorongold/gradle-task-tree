@@ -1,0 +1,5 @@
+include 'api', 'shared', 'services:personService'
+
+rootProject.name = "multi-project"
+
+includeBuild("includedProject")

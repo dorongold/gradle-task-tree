@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dorongold.gradle.integtests.fixtures;
+package com.dorongold.gradle.tasktree.fixtures;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
