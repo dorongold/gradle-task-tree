@@ -10,8 +10,8 @@ Version 4.0.0 (2024-06-11)
 * Compatibility with Gradle Configuration Cache.
 * Support for tasks from included builds:
   * Tasks from included builds (and their task dependency sub-trees) will appear in the task tree, just like tasks from the main build.
-  * **Note**: Only tasks that are part of the task tree rooted at an entry task will be shown.
-  Tasks from included builds that Gradle runs automatically before the main task graph is ready (e.g. `:<included project>:compileJava`) will not appear in the task tree.
+  * **Note**: Only tasks that are part of a task tree rooted at an entry task (a task given to the gradle command) will be shown.
+  Tasks from included builds that Gradle runs automatically before the main task graph is ready (e.g. `:<included project>:compileJava`) may not appear in the task tree.
 * The plugin no longer applies itself to all subprojects. Instead, the `taskTree` task is registered in all subprojects. This should slightly reduce this plugin's footprint (performance-wise) in large multi-projects.
 
 
