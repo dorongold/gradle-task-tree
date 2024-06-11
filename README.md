@@ -42,7 +42,7 @@ rootProject {
 
 `gradle <task 1>...<task N> taskTree`
 
-When one of the tasks given to the gradle command is `taskTree`, executions of all the other tasks given on that command are skipped. Instead, their task dependency tree is printed.
+When one of the tasks given to the gradle command is `taskTree`, executions of all other tasks are skipped. Instead, their task dependency tree is printed.
 
 ### Examples
 
