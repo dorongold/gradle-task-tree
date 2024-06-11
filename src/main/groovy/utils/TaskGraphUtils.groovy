@@ -4,12 +4,8 @@ import com.dorongold.gradle.tasktree.TaskTreeTaskBase
 import org.gradle.api.Task
 import org.gradle.execution.plan.Node
 import org.gradle.execution.plan.TaskInAnotherBuild
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class TaskGraphUtils {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskGraphUtils)
 
     static Set<Node> findRealTaskNodes(Collection<Node> nodes) {
         return nodes.findAll {
