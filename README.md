@@ -14,9 +14,19 @@ The plugin is published on [Gradle Plugin Portal](https://plugins.gradle.org/plu
 
 ## Build Script Snippet
 
+Sample of plugin usage for groovy DSL:
+
 ```groovy
 plugins {
     id "com.dorongold.task-tree" version "4.0.0"
+}
+```
+
+An equivalent for Kotlin DSL:
+
+```kotlin
+plugins {
+    id("com.dorongold.task-tree") version "4.0.0"
 }
 ```
 
