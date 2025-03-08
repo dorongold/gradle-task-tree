@@ -18,7 +18,7 @@ Sample of plugin usage for groovy DSL:
 
 ```groovy
 plugins {
-    id "com.dorongold.task-tree" version "4.0.0"
+    id "com.dorongold.task-tree" version "4.0.1"
 }
 ```
 
@@ -26,7 +26,7 @@ An equivalent for Kotlin DSL:
 
 ```kotlin
 plugins {
-    id("com.dorongold.task-tree") version "4.0.0"
+    id("com.dorongold.task-tree") version "4.0.1"
 }
 ```
 
@@ -40,7 +40,7 @@ initscript {
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
-	    classpath "com.dorongold.plugins:task-tree:4.0.0"
+	    classpath "com.dorongold.plugins:task-tree:4.0.1"
     }
 }
 rootProject {

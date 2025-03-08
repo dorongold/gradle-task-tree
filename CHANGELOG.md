@@ -4,6 +4,10 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Version 4.0.1 (2025-03-08)
+----------------------------
+* Fix issue where failure to resolve some task details, such as task inputs, causes `taskTree` to fail.
+
 Version 4.0.0 (2024-06-11)
 ----------------------------
 * Minimum supported Gradle version bumped to 7.6.
