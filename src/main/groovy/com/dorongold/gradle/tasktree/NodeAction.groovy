@@ -2,6 +2,7 @@ package com.dorongold.gradle.tasktree
 
 import groovy.transform.TupleConstructor
 import org.gradle.api.Action
+import org.gradle.internal.Try
 import org.gradle.internal.graph.GraphRenderer
 import org.gradle.internal.logging.text.StyledTextOutput
 
@@ -47,22 +48,23 @@ class NodeAction implements Action<StyledTextOutput> {
         }
 
         if (withInputs) {
-            printTaskFiles(graphRenderer, taskDetails.fileInputs, "<- ", FailureHeader, Failure)
+            printTaskFiles(graphRenderer, taskDetails.fileInputs, "<- ", 'inputs', FailureHeader, Failure)
         }
         if (withOutputs) {
-            printTaskFiles(graphRenderer, taskDetails.fileOutputs, "-> ", SuccessHeader, Success)
+            printTaskFiles(graphRenderer, taskDetails.fileOutputs, "-> ", 'outputs', SuccessHeader, Success)
         }
     }
 
-    static void printTaskDescription(GraphRenderer graphRenderer, String description, StyledTextOutput.Style textStyle) {
+    static void printTaskDescription(GraphRenderer graphRenderer, Try<String> description, StyledTextOutput.Style textStyle) {
         graphRenderer.output
                 .withStyle(textStyle)
-                .text(" - " + description)
+                .text(" - " + description.getOrMapFailure { e -> "Error! Failure determining description: [${e}]" })
     }
 
-    static void printTaskFiles(GraphRenderer graphRenderer, List<String> files, String prefix, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
+    static void printTaskFiles(GraphRenderer graphRenderer, Try<List<String>> files, String prefix,
+                               String detailName, StyledTextOutput.Style prefixStyle, StyledTextOutput.Style textStyle) {
         graphRenderer.startChildren()
-        files.eachWithIndex { File file, int i ->
+        files.getOrMapFailure { e -> ["[Error determining ${detailName}: ${e}]"] }.eachWithIndex { String file, int i ->
             graphRenderer.output.println()
             graphRenderer.output
                     .withStyle(Info)
