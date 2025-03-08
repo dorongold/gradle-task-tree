@@ -1,0 +1,6 @@
+plugins {
+    id 'java'
+    id 'groovy' // applying the groovy plugin without setting groovy runtime causes groovyCompile to fail resolving inputs: https://docs.gradle.org/current/userguide/groovy_plugin.html#sec:automatic_configuration_of_groovyclasspath
+    id 'com.dorongold.task-tree'
+}
+

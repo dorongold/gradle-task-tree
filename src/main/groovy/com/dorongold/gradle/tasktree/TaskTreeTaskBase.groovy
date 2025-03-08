@@ -1,3 +1,4 @@
+//file:noinspection GrMethodMayBeStatic
 package com.dorongold.gradle.tasktree
 
 import groovy.transform.Canonical
@@ -11,9 +12,14 @@ import org.gradle.api.tasks.diagnostics.internal.TextReportRenderer
 import org.gradle.execution.plan.DefaultExecutionPlan
 import org.gradle.execution.plan.Node
 import org.gradle.initialization.BuildClientMetaData
+import org.gradle.internal.Try
 import org.gradle.internal.graph.GraphRenderer
 import org.gradle.internal.logging.text.StyledTextOutput
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import utils.TaskGraphUtils
+
+import java.util.concurrent.Callable
 
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.FailureHeader
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Info
@@ -25,6 +31,9 @@ import static org.gradle.internal.logging.text.StyledTextOutput.Style.UserInput
  * Date: 10/09/15*/
 
 abstract class TaskTreeTaskBase extends AbstractProjectBasedReportTask<TaskReportModel> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskTreeTaskBase)
+
     public TextReportRenderer renderer = new TextReportRenderer()
 
     @Internal
@@ -45,6 +54,9 @@ abstract class TaskTreeTaskBase extends AbstractProjectBasedReportTask<TaskRepor
     @Internal
     GraphRenderer graphRenderer
 
+    @Internal
+    Map<Node, TaskDetails> taskDetailsCache = new HashMap<>()
+
     @Override
     protected TextReportRenderer getRenderer() {
         return renderer
@@ -59,9 +71,9 @@ abstract class TaskTreeTaskBase extends AbstractProjectBasedReportTask<TaskRepor
     @EqualsAndHashCode(includes = ['path'])
     static final class TaskDetails {
         String path
-        String description
-        List<String> fileInputs
-        List<String> fileOutputs
+        Try<String> description
+        Try<List<String>> fileInputs
+        Try<List<String>> fileOutputs
 
         Collection<TaskDetails> children
     }
@@ -88,14 +100,22 @@ abstract class TaskTreeTaskBase extends AbstractProjectBasedReportTask<TaskRepor
     }
 
     TaskDetails buildTaskDetails(Node taskNode) {
-        String path = taskNode.task.getIdentityPath() as String
-        String description = taskNode.task.description as String
-        List<String> inputs = taskNode.task.inputs.files as List<String>
-        List<String> outputs = taskNode.task.outputs.files as List<String>
-        return new TaskDetails(path,
-                description,
-                inputs,
-                outputs)
+        taskDetailsCache.computeIfAbsent(taskNode, this::buildTaskDetailsInternal)
+    }
+
+    TaskDetails buildTaskDetailsInternal(Node taskNode) {
+        LOGGER.info("[task-tree plugin]: building task details for task ${taskNode}")
+        String taskPath = taskNode.task.getIdentityPath() as String
+        Try<String> taskDescription = withDescription ? tryBuildDetailForTaskPath(taskPath, 'description',
+                () -> taskNode.task.description as String) : null
+        Try<List<String>> taskInputs = withInputs ? tryBuildDetailForTaskPath(taskPath, 'inputs',
+                () -> taskNode.task.inputs.files.collect { it.toString() }) : null
+        Try<List<String>> taskOutputs = withOutputs ? tryBuildDetailForTaskPath(taskPath, 'outputs',
+                () -> taskNode.task.outputs.files.collect { it.toString() }) : null
+        return new TaskDetails(taskPath,
+                taskDescription,
+                taskInputs,
+                taskOutputs)
     }
 
     @Override
@@ -184,6 +204,15 @@ abstract class TaskTreeTaskBase extends AbstractProjectBasedReportTask<TaskRepor
         textOutput.withStyle(Info).text("No task dependencies")
         textOutput.println()
 
+    }
+
+    static <U> Try<U> tryBuildDetailForTaskPath(String taskPath, String detailName, Callable<U> failable) {
+        try {
+            return Try.successful(failable.call())
+        } catch (Exception e) {
+            LOGGER.info("[task-tree plugin]: Error determining ${detailName} for task ${taskPath}", e)
+            return Try.failure(e)
+        }
     }
 
 }

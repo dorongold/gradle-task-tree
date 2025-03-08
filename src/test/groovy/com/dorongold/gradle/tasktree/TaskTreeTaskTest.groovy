@@ -201,6 +201,23 @@ class TaskTreeTaskTest extends Specification {
         result.output.contains expectedOutputProjectPersonService()
     }
 
+    @UsesSample('failures/')
+    def "taskTree with failures determining task inputs"() {
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(sampleProject.dir)
+                .withArguments('compileGroovy', 'taskTree', '--with-inputs')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.output =~ expectedOutputProjectFailures()
+
+        result.task(":taskTree").outcome == SUCCESS
+        result.task(":compileGroovy").outcome == SKIPPED
+
+    }
+
 
     static String expectedOutputAllArgumentsWithoutRepeat(Path projectRoot) {
         """
@@ -603,6 +620,21 @@ Project ':services:personService'
 
 (*) - subtree omitted (printed previously)
 '''.stripIndent()
+    }
+
+    static String expectedOutputProjectFailures() {
+        $/
+------------------------------------------------------------
+Root project 'failures'
+------------------------------------------------------------
+
+:compileGroovy
+     <-  \[Error determining inputs: org.gradle.api.GradleException: Cannot infer Groovy class path because no Groovy Jar was found on class path: \[.*failures/build/classes/java/main\]\]
+\\--- :compileJava
+
+
+\(\*\) - subtree omitted \(printed previously\)
+/$.stripIndent()
     }
 
     private void populateBuildFile() {
