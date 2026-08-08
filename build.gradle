@@ -49,6 +49,12 @@ gradlePlugin {
 }
 
 test {
+    // The plugin itself is compiled for Java 8, but TestKit runs real Gradle daemons:
+    // Gradle 9.x requires Java 17+, while Gradle 7.6 still supports it.
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+
     useJUnitPlatform()
     testLogging {
 //        showStandardStreams = true

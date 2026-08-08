@@ -24,7 +24,9 @@ class TaskTreeTaskTest extends Specification {
 
     public static final String GRADLE_CURRENT_VERSION_ENDPOINT = 'https://services.gradle.org/versions/current'
     public static final String GRADLE_ALL_VERSIONS_ENDPOINT = 'https://services.gradle.org/versions/all'
-    public static final List<String> SOME_GRADLE_VERSIONS_TO_TEST = ['7.6']
+    // 7.6 is the minimum supported version, and covers unwrapping tasks from included builds via
+    // internal fields. 9.1.0 is the first version exposing TaskInAnotherBuild.getTargetNode() instead.
+    public static final List<String> SOME_GRADLE_VERSIONS_TO_TEST = ['7.6', '9.1.0']
     public static final String PROJECT_NAME = 'rootProjectName'
 
     @ClassRule

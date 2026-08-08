@@ -4,6 +4,15 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Unreleased
+----------------------------
+* Fix `taskTree` failing with `No such property: taskNode for class: org.gradle.execution.plan.LocalTaskNode` when a task
+  depends on a task from an included build, on Gradle 9.1 and above (issue #62).
+  Gradle 9.1 exposes the node of a task from an included build directly, where previous versions kept it behind two levels
+  of internal fields. Both shapes are now supported, so Gradle 7.6 - 9.0 keep working.
+* A subtree is now omitted from the printed tree, instead of failing the build, when the dependencies of a task cannot be
+  determined.
+
 Version 4.0.1 (2025-03-08)
 ----------------------------
 * Fix issue where failure to resolve some task details, such as task inputs, causes `taskTree` to fail.
