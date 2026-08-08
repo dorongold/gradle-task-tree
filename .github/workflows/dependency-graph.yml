@@ -1,0 +1,37 @@
+name: Dependency Graph
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  dependency-submission:
+    name: Submit dependency graph
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 8 and JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: |
+            8
+            17
+          cache: gradle
+
+      # The plugin declares a Java 8 toolchain, which affects the JVM-version attribute used to
+      # resolve compileClasspath. Resolving that classpath - which is all dependency submission
+      # does - needs the toolchain locatable even though nothing is actually compiled, so this
+      # needs the same fromEnv wiring as the other workflows in this repository.
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@v6
+        with:
+          additional-arguments: -Porg.gradle.java.installations.fromEnv=JAVA_HOME_8_X64,JAVA_HOME_17_X64
