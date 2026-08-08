@@ -106,9 +106,6 @@ class TaskTreeTaskTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('build', 'taskTree', '--with-inputs', '--with-outputs')
                 .withGradleVersion(gradleVersion)
-        // running in debug mode as a workaround to prevent gradle from spawning new gradle daemons  - which causes the build to fail on Travis CI
-        // debug mode runs "embedded" gradle
-//                .withDebug(true)
 //                .forwardOutput()
                 .withPluginClasspath()
                 .build()
