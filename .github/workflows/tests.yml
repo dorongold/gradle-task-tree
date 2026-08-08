@@ -1,6 +1,9 @@
 name: Tests
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
   schedule:
     # Daily. Deliberately off the hour: scheduled runs cluster at :00 and get delayed under load.
@@ -14,7 +17,7 @@ permissions:
 # Superseded runs are of no interest once a pull request gets a new commit, and the suite is
 # slow enough that they would otherwise pile up behind each other.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
