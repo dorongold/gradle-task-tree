@@ -22,7 +22,7 @@ dependencies {
     implementation platform('org.codehaus.groovy:groovy-bom:3.0.21')
     implementation 'org.codehaus.groovy:groovy'
 
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
 
     testImplementation platform("org.spockframework:spock-bom:2.3-groovy-3.0") {
         exclude group: 'org.codehaus.groovy'
