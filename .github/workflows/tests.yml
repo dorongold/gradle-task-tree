@@ -1,0 +1,51 @@
+name: Tests
+
+on:
+  schedule:
+    # Daily. Deliberately off the hour: scheduled runs cluster at :00 and get delayed under load.
+    - cron: '17 4 * * *'
+  # Allows running the suite on demand from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test suite
+    runs-on: ubuntu-latest
+    # The suite starts real Gradle daemons through TestKit and downloads a distribution per
+    # tested Gradle version, so it is much slower than the tests themselves.
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # Java 8 compiles the plugin, Java 17 runs the tests so TestKit can start both Gradle 7.6
+      # and Gradle 9.x daemons. The last version listed becomes JAVA_HOME, which is the daemon JVM.
+      - name: Set up JDK 8 and JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            8
+            17
+          cache: gradle
+
+      # setup-java installs into the runner tool cache, which Gradle's toolchain auto-detection
+      # does not scan, so point it at the JAVA_HOME_* variables setup-java exports.
+      - name: Run tests
+        run: >-
+          ./gradlew test --stacktrace
+          -Porg.gradle.java.installations.fromEnv=JAVA_HOME_8_X64,JAVA_HOME_17_X64
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            build/reports/tests/test
+            build/test-results/test
+          retention-days: 14
