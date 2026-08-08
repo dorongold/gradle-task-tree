@@ -4,7 +4,7 @@ Changelog
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Unreleased
+Version 4.0.2 (2026-08-08)
 ----------------------------
 * Fix `taskTree` failing on tasks from included builds on Gradle 9.1 and above (issue #62). A subtree whose dependencies
   cannot be determined is now omitted from the tree instead of failing the build.
